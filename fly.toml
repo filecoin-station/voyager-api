@@ -1,0 +1,41 @@
+app = "voyager-api"
+primary_region = "cdg"
+kill_signal = "SIGINT"
+kill_timeout = 5
+processes = []
+
+[env]
+  PORT = "8080"
+  HOST = "0.0.0.0"
+  SENTRY_ENVIRONMENT = "production"
+
+[experimental]
+  auto_rollback = true
+
+[[services]]
+  http_checks = []
+  internal_port = 8080
+  processes = ["app"]
+  protocol = "tcp"
+  script_checks = []
+  [services.concurrency]
+    # Remember to update PG Pool config option `max` in bin/voyager.js when changing `hard_limit`.
+    hard_limit = 800
+    soft_limit = 600
+    type = "connections"
+
+  [[services.ports]]
+    force_https = true
+    handlers = ["http"]
+    port = 80
+
+  [[services.ports]]
+    handlers = ["tls", "http"]
+    port = 443
+
+  [[services.tcp_checks]]
+    path = "/rounds/current"
+    grace_period = "10s"
+    interval = "15s"
+    restart_limit = 0
+    timeout = "2s"

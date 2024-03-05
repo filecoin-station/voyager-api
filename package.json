@@ -1,0 +1,35 @@
+{
+  "name": "@filecoin-station/voyager-api",
+  "private": true,
+  "version": "0.0.0",
+  "license": "MIT",
+  "repository": "filecoin-station/voyager-api",
+  "type": "module",
+  "description": "API for Voyager",
+  "scripts": {
+    "migrate": "node bin/migrate.js",
+    "start": "node bin/voyager.js",
+    "test": "standard && mocha"
+  },
+  "devDependencies": {
+    "light-my-request": "^5.11.1",
+    "mocha": "^10.3.0",
+    "standard": "^17.1.0",
+    "varint": "^6.0.0"
+  },
+  "dependencies": {
+    "@sentry/node": "^7.105.0",
+    "ethers": "^5.7.2",
+    "http-assert": "^1.5.0",
+    "http-responders": "^2.0.2",
+    "multiformats": "^13.1.0",
+    "pg": "^8.11.3",
+    "postgrator": "^7.2.0",
+    "raw-body": "^2.5.2"
+  },
+  "standard": {
+    "env": [
+      "mocha"
+    ]
+  }
+}
