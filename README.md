@@ -1,5 +1,5 @@
 # voyager-api
-[voyager](https://github.com/filecoin-station/voyager) API
+[Voyager](https://github.com/filecoin-station/voyager) API
 
 [![CI](https://github.com/filecoin-station/voyager-api/actions/workflows/ci.yml/badge.svg)](https://github.com/filecoin-station/voyager-api/actions/workflows/ci.yml)
 
