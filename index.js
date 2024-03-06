@@ -56,7 +56,6 @@ const createMeasurement = async (req, res, client, getCurrentRound) => {
   validate(measurement, 'attestation', { type: 'string', required: false })
   validate(measurement, 'carTooLarge', { type: 'boolean', required: false })
   validate(measurement, 'carChecksum', { type: 'string', required: false })
-  validate(measurement, 'indexerResult', { type: 'string', required: false })
 
   const inetGroup = await mapRequestToInetGroup(client, req)
 
@@ -75,11 +74,10 @@ const createMeasurement = async (req, res, client, getCurrentRound) => {
         inet_group,
         car_too_large,
         car_checksum,
-        indexer_result,
         completed_at_round
       )
       VALUES (
-        $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15
+        $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14
       )
       RETURNING id
     `, [
@@ -96,7 +94,6 @@ const createMeasurement = async (req, res, client, getCurrentRound) => {
     inetGroup,
     measurement.carTooLarge ?? false,
     measurement.carChecksum,
-    measurement.indexerResult,
     voyagerRoundNumber
   ])
   json(res, { id: rows[0].id })

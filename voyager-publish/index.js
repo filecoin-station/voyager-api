@@ -26,7 +26,6 @@ export const publish = async ({
       inet_group,
       car_too_large,
       car_checksum,
-      indexer_result,
       cid
     FROM measurements
     LIMIT $1

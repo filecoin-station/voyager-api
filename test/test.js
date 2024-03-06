@@ -25,8 +25,7 @@ const VALID_MEASUREMENT = {
   byteLength: 100,
   carTooLarge: true,
   attestation: 'json.sig',
-  carChecksum: 'somehash',
-  indexerResult: 'OK'
+  carChecksum: 'somehash'
 }
 
 const assertResponseStatus = async (res, status) => {
@@ -167,7 +166,6 @@ describe('Routes', () => {
       assert.strictEqual(measurementRow.completed_at_round, currentVoyagerRoundNumber.toString())
       assert.match(measurementRow.inet_group, /^.{12}$/)
       assert.strictEqual(measurementRow.car_too_large, true)
-      assert.strictEqual(measurementRow.indexer_result, 'OK')
       assert.strictEqual(measurementRow.car_checksum, 'somehash')
     })
 
