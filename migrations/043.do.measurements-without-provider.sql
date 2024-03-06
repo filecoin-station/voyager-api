@@ -1,2 +1,0 @@
-ALTER TABLE measurements
-ALTER COLUMN protocol DROP NOT NULL;

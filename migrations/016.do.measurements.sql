@@ -1,13 +1,11 @@
 ALTER TABLE retrieval_results ADD COLUMN zinnia_version TEXT;
 ALTER TABLE retrieval_results ADD COLUMN cid TEXT;
-ALTER TABLE retrieval_results ADD COLUMN protocol protocol;
 ALTER TABLE retrieval_results ADD COLUMN published_as TEXT;
 
 UPDATE retrieval_results
 SET
   zinnia_version = retrievals.zinnia_version,
   cid = retrieval_templates.cid,
-  protocol = retrieval_templates.protocol,
   published_as = retrievals.published_as
 FROM
   retrievals LEFT JOIN retrieval_templates
@@ -15,7 +13,6 @@ FROM
 WHERE retrieval_id = retrievals.id;
 
 ALTER TABLE retrieval_results ALTER COLUMN cid SET NOT NULL;
-ALTER TABLE retrieval_results ALTER COLUMN protocol SET NOT NULL;
 ALTER TABLE retrievals DROP COLUMN published_as;
 
 -- Remove the foreign key constraint to decouple `retrieval_results` from `retrievals`

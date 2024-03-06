@@ -110,7 +110,6 @@ describe('integration', () => {
     const measurements = [{
       zinniaVersion: '0.5.6',
       cid: 'bafytest',
-      protocol: 'graphsync',
       participantAddress: 't1foobar',
       timeout: false,
       startAt: new Date('2023-09-18T13:33:51.239Z'),
@@ -127,7 +126,6 @@ describe('integration', () => {
     }, {
       zinniaVersion: '0.5.6',
       cid: 'bafytest',
-      protocol: 'graphsync',
       participantAddress: 't1foobar',
       timeout: false,
       startAt: new Date('2023-09-18T13:33:51.239Z'),
@@ -243,7 +241,6 @@ const insertMeasurement = async (client, measurement) => {
   INSERT INTO measurements (
     zinnia_version,
     cid,
-    protocol,
     participant_address,
     timeout,
     start_at,
@@ -259,12 +256,11 @@ const insertMeasurement = async (client, measurement) => {
     completed_at_round
   )
   VALUES (
-    $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16
+    $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15
   )
 `, [
     measurement.zinniaVersion,
     measurement.cid,
-    measurement.protocol,
     measurement.participantAddress,
     measurement.timeout,
     measurement.startAt,

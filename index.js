@@ -46,7 +46,6 @@ const createMeasurement = async (req, res, client, getCurrentRound) => {
   }
 
   validate(measurement, 'cid', { type: 'string', required: true })
-  validate(measurement, 'protocol', { type: 'string', required: false })
   validate(measurement, 'participantAddress', { type: 'string', required: true })
   validate(measurement, 'timeout', { type: 'boolean', required: false })
   validate(measurement, 'startAt', { type: 'date', required: true })
@@ -65,7 +64,6 @@ const createMeasurement = async (req, res, client, getCurrentRound) => {
       INSERT INTO measurements (
         zinnia_version,
         cid,
-        protocol,
         participant_address,
         timeout,
         start_at,
@@ -81,13 +79,12 @@ const createMeasurement = async (req, res, client, getCurrentRound) => {
         completed_at_round
       )
       VALUES (
-        $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16
+        $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15
       )
       RETURNING id
     `, [
     measurement.zinniaVersion,
     measurement.cid,
-    measurement.protocol,
     measurement.participantAddress,
     measurement.timeout || false,
     parseOptionalDate(measurement.startAt),
@@ -118,7 +115,6 @@ const getMeasurement = async (req, res, client, measurementId) => {
   json(res, {
     id: resultRow.id,
     cid: resultRow.cid,
-    protocol: resultRow.protocol,
     zinniaVersion: resultRow.zinnia_version,
     createdAt: resultRow.created_at,
     finishedAt: resultRow.finished_at,
@@ -169,10 +165,7 @@ const replyWithDetailsForRoundNumber = async (res, client, roundNumber) => {
   json(res, {
     roundId: round.id.toString(),
     maxTasksPerNode: round.max_tasks_per_node,
-    retrievalTasks: tasks.map(t => ({
-      cid: t.cid,
-      protocol: t.protocol
-    }))
+    retrievalTasks: tasks.map(t => ({ cid: t.cid }))
   })
 }
 
@@ -201,15 +194,9 @@ const getMeridianRoundDetails = async (_req, res, client, meridianAddress, merid
   json(res, {
     roundId: round.id.toString(),
     maxTasksPerNode: round.max_tasks_per_node,
-    retrievalTasks: tasks.map(t => ({
-      cid: t.cid,
-      // We are preserving these fields to make older rounds still verifiable
-      protocol: fixNullToUndefined(t.protocol)
-    }))
+    retrievalTasks: tasks.map(t => ({ cid: t.cid }))
   })
 }
-
-const fixNullToUndefined = (valueOrNull) => valueOrNull === null ? undefined : valueOrNull
 
 const parseRoundNumber = (roundParam) => {
   try {

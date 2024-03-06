@@ -16,7 +16,6 @@ const currentVoyagerRoundNumber = 42n
 
 const VALID_MEASUREMENT = {
   cid: 'bafytest',
-  protocol: 'graphsync',
   zinniaVersion: '2.3.4',
   participantAddress,
   startAt: new Date(),
@@ -164,7 +163,6 @@ describe('Routes', () => {
       assert.strictEqual(measurementRow.byte_length, measurement.byteLength)
       assert.strictEqual(measurementRow.attestation, measurement.attestation)
       assert.strictEqual(measurementRow.cid, measurement.cid)
-      assert.strictEqual(measurementRow.protocol, measurement.protocol)
       assert.strictEqual(measurementRow.zinnia_version, '2.3.4')
       assert.strictEqual(measurementRow.completed_at_round, currentVoyagerRoundNumber.toString())
       assert.match(measurementRow.inet_group, /^.{12}$/)
@@ -181,7 +179,6 @@ describe('Routes', () => {
         walletAddress: participantAddress,
         // Everything else does not matter
         cid: 'bafytest',
-        protocol: 'graphsync',
         zinniaVersion: '2.3.4',
         startAt: new Date(),
         statusCode: 200,
@@ -214,7 +211,6 @@ describe('Routes', () => {
 
       const measurement = {
         cid: 'bafytest',
-        protocol: 'graphsync',
         zinniaVersion: '2.3.4',
         participantAddress,
         startAt: new Date(),
@@ -243,41 +239,12 @@ describe('Routes', () => {
       assert.strictEqual(measurementRow.first_byte_at, null)
       assert.strictEqual(measurementRow.end_at, null)
     })
-
-    it('allows no protocol', async () => {
-      // We don't have the provider & protocol fields for deals that are not advertised to IPNI
-      await client.query('DELETE FROM measurements')
-
-      const measurement = {
-        ...VALID_MEASUREMENT,
-        protocol: undefined
-      }
-
-      const createRequest = await fetch(`${voyager}/measurements`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(measurement)
-      })
-      await assertResponseStatus(createRequest, 200)
-      const { id } = await createRequest.json()
-
-      const { rows: [measurementRow] } = await client.query(`
-          SELECT *
-          FROM measurements
-          WHERE id = $1
-        `, [
-        id
-      ])
-
-      assert.strictEqual(measurementRow.protocol, null)
-    })
   })
 
   describe('GET /measurements/:id', () => {
     it('gets a completed retrieval', async () => {
       const retrieval = {
         cid: 'bafytest',
-        protocol: 'graphsync',
         zinniaVersion: '2.3.4',
         participantAddress,
         startAt: new Date(),
@@ -301,7 +268,6 @@ describe('Routes', () => {
       const body = await res.json()
       assert.strictEqual(body.id, measurementId)
       assert.strictEqual(body.cid, retrieval.cid)
-      assert.strictEqual(body.protocol, retrieval.protocol)
       assert.strictEqual(body.zinniaVersion, '2.3.4')
       assert(body.finishedAt)
       assert.strictEqual(body.startAt, retrieval.startAt.toJSON())
@@ -411,7 +377,6 @@ describe('Routes', () => {
 
       for (const t of body.retrievalTasks) {
         assert.strictEqual(typeof t.cid, 'string')
-        assert.strictEqual(t.protocol, undefined)
       }
     })
   })
@@ -460,7 +425,6 @@ describe('Routes', () => {
         method: 'POST',
         body: JSON.stringify({
           cid: 'cid',
-          protocol: 'http',
           participantAddress: 'address',
           startAt: new Date()
         })

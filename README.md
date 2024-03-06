@@ -21,8 +21,7 @@ Response:
 ```typescript
 {
   id: String,
-  cid: String,
-  protocol: 'graphsync'|'bitswap'|'http'
+  cid: String
 }
 ```
 

@@ -1,8 +1,6 @@
-CREATE TYPE protocol AS ENUM ('bitswap', 'graphsync');
 CREATE TABLE retrieval_templates (
   id SERIAL NOT NULL PRIMARY KEY,
-  cid VARCHAR(64) NOT NULL,
-  protocol protocol NOT NULL
+  cid VARCHAR(64) NOT NULL
 );
 CREATE TABLE retrievals (
   id SERIAL NOT NULL PRIMARY KEY,
@@ -10,12 +8,9 @@ CREATE TABLE retrievals (
   created_at TIMESTAMP NOT NULL DEFAULT NOW()
 );
 INSERT INTO retrieval_templates (
-  cid,
-  protocol
+  cid
 ) VALUES (
-  'bafybeigvgzoolc3drupxhlevdp2ugqcrbcsqfmcek2zxiw5wctk3xjpjwy',
-  'graphsync'
+  'bafybeigvgzoolc3drupxhlevdp2ugqcrbcsqfmcek2zxiw5wctk3xjpjwy'
 ), (
-  'QmcRD4wkPPi6dig81r5sLj9Zm1gDCL4zgpEj9CfuRrGbzF',
-  'graphsync'
+  'QmcRD4wkPPi6dig81r5sLj9Zm1gDCL4zgpEj9CfuRrGbzF'
 );
