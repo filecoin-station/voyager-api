@@ -12,7 +12,7 @@ WORKDIR /app
 # Set production environment
 ENV NODE_ENV production
 ENV SENTRY_ENVIRONMENT production
-ENV DOMAIN api.filvoyager.com
+ENV DOMAIN voyager.filstation.app
 ENV REQUEST_LOGGING false
 
 #######################################################################
