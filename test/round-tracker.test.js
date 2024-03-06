@@ -142,7 +142,6 @@ describe('Round Tracker', () => {
         assert.strictEqual(BigInt(t.round_id), voyagerRoundNumber)
         assert.strictEqual(typeof t.cid, 'string', `task#${ix} cid`)
         // node-pg maps SQL value `NULL` to JS value `null`
-        assert.strictEqual(t.provider_address, null, `task#${ix} provider_address`)
         assert.strictEqual(t.protocol, null, `task#${ix} protocol`)
       }
     })

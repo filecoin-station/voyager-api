@@ -28,7 +28,6 @@ export const publish = async ({
       car_checksum,
       indexer_result,
       cid,
-      provider_address,
       protocol
     FROM measurements
     LIMIT $1

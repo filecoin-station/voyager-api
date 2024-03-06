@@ -46,7 +46,6 @@ const createMeasurement = async (req, res, client, getCurrentRound) => {
   }
 
   validate(measurement, 'cid', { type: 'string', required: true })
-  validate(measurement, 'providerAddress', { type: 'string', required: false })
   validate(measurement, 'protocol', { type: 'string', required: false })
   validate(measurement, 'participantAddress', { type: 'string', required: true })
   validate(measurement, 'timeout', { type: 'boolean', required: false })
@@ -66,7 +65,6 @@ const createMeasurement = async (req, res, client, getCurrentRound) => {
       INSERT INTO measurements (
         zinnia_version,
         cid,
-        provider_address,
         protocol,
         participant_address,
         timeout,
@@ -83,13 +81,12 @@ const createMeasurement = async (req, res, client, getCurrentRound) => {
         completed_at_round
       )
       VALUES (
-        $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17
+        $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16
       )
       RETURNING id
     `, [
     measurement.zinniaVersion,
     measurement.cid,
-    measurement.providerAddress,
     measurement.protocol,
     measurement.participantAddress,
     measurement.timeout || false,
@@ -121,7 +118,6 @@ const getMeasurement = async (req, res, client, measurementId) => {
   json(res, {
     id: resultRow.id,
     cid: resultRow.cid,
-    providerAddress: resultRow.provider_address,
     protocol: resultRow.protocol,
     zinniaVersion: resultRow.zinnia_version,
     createdAt: resultRow.created_at,
@@ -175,7 +171,6 @@ const replyWithDetailsForRoundNumber = async (res, client, roundNumber) => {
     maxTasksPerNode: round.max_tasks_per_node,
     retrievalTasks: tasks.map(t => ({
       cid: t.cid,
-      providerAddress: t.provider_address,
       protocol: t.protocol
     }))
   })
@@ -209,7 +204,6 @@ const getMeridianRoundDetails = async (_req, res, client, meridianAddress, merid
     retrievalTasks: tasks.map(t => ({
       cid: t.cid,
       // We are preserving these fields to make older rounds still verifiable
-      providerAddress: fixNullToUndefined(t.provider_address),
       protocol: fixNullToUndefined(t.protocol)
     }))
   })

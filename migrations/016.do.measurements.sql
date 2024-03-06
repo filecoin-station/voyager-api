@@ -1,6 +1,5 @@
 ALTER TABLE retrieval_results ADD COLUMN zinnia_version TEXT;
 ALTER TABLE retrieval_results ADD COLUMN cid TEXT;
-ALTER TABLE retrieval_results ADD COLUMN provider_address TEXT;
 ALTER TABLE retrieval_results ADD COLUMN protocol protocol;
 ALTER TABLE retrieval_results ADD COLUMN published_as TEXT;
 
@@ -8,7 +7,6 @@ UPDATE retrieval_results
 SET
   zinnia_version = retrievals.zinnia_version,
   cid = retrieval_templates.cid,
-  provider_address = retrieval_templates.provider_address,
   protocol = retrieval_templates.protocol,
   published_as = retrievals.published_as
 FROM
@@ -17,7 +15,6 @@ FROM
 WHERE retrieval_id = retrievals.id;
 
 ALTER TABLE retrieval_results ALTER COLUMN cid SET NOT NULL;
-ALTER TABLE retrieval_results ALTER COLUMN provider_address SET NOT NULL;
 ALTER TABLE retrieval_results ALTER COLUMN protocol SET NOT NULL;
 ALTER TABLE retrievals DROP COLUMN published_as;
 

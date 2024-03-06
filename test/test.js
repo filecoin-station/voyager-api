@@ -16,7 +16,6 @@ const currentVoyagerRoundNumber = 42n
 
 const VALID_MEASUREMENT = {
   cid: 'bafytest',
-  providerAddress: '/dns4/localhost/tcp/8080',
   protocol: 'graphsync',
   zinniaVersion: '2.3.4',
   participantAddress,
@@ -165,7 +164,6 @@ describe('Routes', () => {
       assert.strictEqual(measurementRow.byte_length, measurement.byteLength)
       assert.strictEqual(measurementRow.attestation, measurement.attestation)
       assert.strictEqual(measurementRow.cid, measurement.cid)
-      assert.strictEqual(measurementRow.provider_address, measurement.providerAddress)
       assert.strictEqual(measurementRow.protocol, measurement.protocol)
       assert.strictEqual(measurementRow.zinnia_version, '2.3.4')
       assert.strictEqual(measurementRow.completed_at_round, currentVoyagerRoundNumber.toString())
@@ -183,7 +181,6 @@ describe('Routes', () => {
         walletAddress: participantAddress,
         // Everything else does not matter
         cid: 'bafytest',
-        providerAddress: '/dns4/localhost/tcp/8080',
         protocol: 'graphsync',
         zinniaVersion: '2.3.4',
         startAt: new Date(),
@@ -217,7 +214,6 @@ describe('Routes', () => {
 
       const measurement = {
         cid: 'bafytest',
-        providerAddress: '/dns4/localhost/tcp/8080',
         protocol: 'graphsync',
         zinniaVersion: '2.3.4',
         participantAddress,
@@ -248,13 +244,12 @@ describe('Routes', () => {
       assert.strictEqual(measurementRow.end_at, null)
     })
 
-    it('allows no provider & protocol', async () => {
+    it('allows no protocol', async () => {
       // We don't have the provider & protocol fields for deals that are not advertised to IPNI
       await client.query('DELETE FROM measurements')
 
       const measurement = {
         ...VALID_MEASUREMENT,
-        providerAddress: undefined,
         protocol: undefined
       }
 
@@ -274,7 +269,6 @@ describe('Routes', () => {
         id
       ])
 
-      assert.strictEqual(measurementRow.provider_address, null)
       assert.strictEqual(measurementRow.protocol, null)
     })
   })
@@ -283,7 +277,6 @@ describe('Routes', () => {
     it('gets a completed retrieval', async () => {
       const retrieval = {
         cid: 'bafytest',
-        providerAddress: '/dns4/localhost/tcp/8080',
         protocol: 'graphsync',
         zinniaVersion: '2.3.4',
         participantAddress,
@@ -308,7 +301,6 @@ describe('Routes', () => {
       const body = await res.json()
       assert.strictEqual(body.id, measurementId)
       assert.strictEqual(body.cid, retrieval.cid)
-      assert.strictEqual(body.providerAddress, retrieval.providerAddress)
       assert.strictEqual(body.protocol, retrieval.protocol)
       assert.strictEqual(body.zinniaVersion, '2.3.4')
       assert(body.finishedAt)
@@ -419,7 +411,6 @@ describe('Routes', () => {
 
       for (const t of body.retrievalTasks) {
         assert.strictEqual(typeof t.cid, 'string')
-        assert.strictEqual(t.providerAddress, undefined)
         assert.strictEqual(t.protocol, undefined)
       }
     })
@@ -469,7 +460,6 @@ describe('Routes', () => {
         method: 'POST',
         body: JSON.stringify({
           cid: 'cid',
-          providerAddress: 'address',
           protocol: 'http',
           participantAddress: 'address',
           startAt: new Date()
