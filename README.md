@@ -36,12 +36,8 @@ Body:
 {
   participantAddress: String,
   timeout: Boolean,
-  startAt: String,       // ISO 8601
   statusCode: Number,
-  firstByteAt: String,   // ISO 8601
-  endAt: String,         // ISO 8601
-  byteLength: Number,
-  attestation: String
+  endAt: String          // ISO 8601
 }
 ```
 

@@ -112,27 +112,18 @@ describe('integration', () => {
       cid: 'bafytest',
       participantAddress: 't1foobar',
       timeout: false,
-      startAt: new Date('2023-09-18T13:33:51.239Z'),
       statusCode: 200,
-      firstByteAt: new Date('2023-09-18T13:33:51.239Z'),
       endAt: null,
-      byteLength: 100,
-      attestation: 'json.sig',
       inetGroup: 'MTIzNDU2Nzg',
       carTooLarge: true,
-      carChecksum: 'somehash',
       round: 42
     }, {
       zinniaVersion: '0.5.6',
       cid: 'bafytest',
       participantAddress: 't1foobar',
       timeout: false,
-      startAt: new Date('2023-09-18T13:33:51.239Z'),
       statusCode: 200,
-      firstByteAt: new Date('2023-09-18T13:33:51.239Z'),
       endAt: null,
-      byteLength: 100,
-      attestation: 'json.sig',
       inetGroup: 'MTIzNDU2Nzg',
       carTooLarge: true,
       round: 42
@@ -218,7 +209,6 @@ describe('integration', () => {
     assert.strictEqual(published.inet_group, measurementRecorded.inetGroup)
     assert.strictEqual(published.car_too_large, measurementRecorded.carTooLarge)
     assert.strictEqual(published.end_at, null)
-    assert.strictEqual(published.car_checksum, measurementRecorded.carChecksum)
     // TODO: test other fields
 
     // We are publishing records with invalid wallet addresses too
@@ -241,34 +231,24 @@ const insertMeasurement = async (client, measurement) => {
     cid,
     participant_address,
     timeout,
-    start_at,
     status_code,
-    first_byte_at,
     end_at,
-    byte_length,
-    attestation,
     inet_group,
     car_too_large,
-    car_checksum,
     completed_at_round
   )
   VALUES (
-    $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14
+    $1, $2, $3, $4, $5, $6, $7, $8, $9, $10
   )
 `, [
     measurement.zinniaVersion,
     measurement.cid,
     measurement.participantAddress,
     measurement.timeout,
-    measurement.startAt,
     measurement.statusCode,
-    measurement.firstByteAt,
     measurement.endAt,
-    measurement.byteLength,
-    measurement.attestation,
     measurement.inetGroup,
     measurement.carTooLarge,
-    measurement.carChecksum,
     measurement.round
   ])
 }

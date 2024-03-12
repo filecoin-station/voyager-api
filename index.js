@@ -48,14 +48,9 @@ const createMeasurement = async (req, res, client, getCurrentRound) => {
   validate(measurement, 'cid', { type: 'string', required: true })
   validate(measurement, 'participantAddress', { type: 'string', required: true })
   validate(measurement, 'timeout', { type: 'boolean', required: false })
-  validate(measurement, 'startAt', { type: 'date', required: true })
-  validate(measurement, 'statusCode', { type: 'number', required: false })
-  validate(measurement, 'firstByteAt', { type: 'date', required: false })
   validate(measurement, 'endAt', { type: 'date', required: false })
-  validate(measurement, 'byteLength', { type: 'number', required: false })
-  validate(measurement, 'attestation', { type: 'string', required: false })
+  validate(measurement, 'statusCode', { type: 'number', required: false })
   validate(measurement, 'carTooLarge', { type: 'boolean', required: false })
-  validate(measurement, 'carChecksum', { type: 'string', required: false })
 
   const inetGroup = await mapRequestToInetGroup(client, req)
 
@@ -65,19 +60,14 @@ const createMeasurement = async (req, res, client, getCurrentRound) => {
         cid,
         participant_address,
         timeout,
-        start_at,
         status_code,
-        first_byte_at,
         end_at,
-        byte_length,
-        attestation,
         inet_group,
         car_too_large,
-        car_checksum,
         completed_at_round
       )
       VALUES (
-        $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14
+        $1, $2, $3, $4, $5, $6, $7, $8, $9
       )
       RETURNING id
     `, [
@@ -85,15 +75,10 @@ const createMeasurement = async (req, res, client, getCurrentRound) => {
     measurement.cid,
     measurement.participantAddress,
     measurement.timeout || false,
-    parseOptionalDate(measurement.startAt),
     measurement.statusCode,
-    parseOptionalDate(measurement.firstByteAt),
     parseOptionalDate(measurement.endAt),
-    measurement.byteLength,
-    measurement.attestation,
     inetGroup,
     measurement.carTooLarge ?? false,
-    measurement.carChecksum,
     voyagerRoundNumber
   ])
   json(res, { id: rows[0].id })
@@ -114,15 +99,10 @@ const getMeasurement = async (req, res, client, measurementId) => {
     cid: resultRow.cid,
     zinniaVersion: resultRow.zinnia_version,
     createdAt: resultRow.created_at,
-    finishedAt: resultRow.finished_at,
     timeout: resultRow.timeout,
-    startAt: resultRow.start_at,
     statusCode: resultRow.status_code,
-    firstByteAt: resultRow.first_byte_at,
     endAt: resultRow.end_at,
-    byteLength: resultRow.byte_length,
-    carTooLarge: resultRow.car_too_large,
-    attestation: resultRow.attestation
+    carTooLarge: resultRow.car_too_large
   })
 }
 

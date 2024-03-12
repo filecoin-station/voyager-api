@@ -18,14 +18,9 @@ const VALID_MEASUREMENT = {
   cid: 'bafytest',
   zinniaVersion: '2.3.4',
   participantAddress,
-  startAt: new Date(),
   statusCode: 200,
-  firstByteAt: new Date(),
   endAt: new Date(),
-  byteLength: 100,
-  carTooLarge: true,
-  attestation: 'json.sig',
-  carChecksum: 'somehash'
+  carTooLarge: true
 }
 
 const assertResponseStatus = async (res, status) => {
@@ -93,12 +88,8 @@ describe('Routes', () => {
     it('returns 410 OUTDATED CLIENT', async () => {
       const result = {
         walletAddress,
-        startAt: new Date(),
         statusCode: 200,
-        firstByteAt: new Date(),
-        endAt: new Date(),
-        byteLength: 100,
-        attestation: 'json.sig'
+        endAt: new Date()
       }
 
       const updateRequest = await fetch(
@@ -146,27 +137,16 @@ describe('Routes', () => {
         id
       ])
       assert.strictEqual(measurementRow.participant_address, participantAddress)
-      assert.strictEqual(
-        measurementRow.start_at.toJSON(),
-        measurement.startAt.toJSON()
-      )
       assert.strictEqual(measurementRow.status_code, measurement.statusCode)
-      assert.strictEqual(
-        measurementRow.first_byte_at.toJSON(),
-        measurement.firstByteAt.toJSON()
-      )
       assert.strictEqual(
         measurementRow.end_at.toJSON(),
         measurement.endAt.toJSON()
       )
-      assert.strictEqual(measurementRow.byte_length, measurement.byteLength)
-      assert.strictEqual(measurementRow.attestation, measurement.attestation)
       assert.strictEqual(measurementRow.cid, measurement.cid)
       assert.strictEqual(measurementRow.zinnia_version, '2.3.4')
       assert.strictEqual(measurementRow.completed_at_round, currentVoyagerRoundNumber.toString())
       assert.match(measurementRow.inet_group, /^.{12}$/)
       assert.strictEqual(measurementRow.car_too_large, true)
-      assert.strictEqual(measurementRow.car_checksum, 'somehash')
     })
 
     it('allows older format with walletAddress', async () => {
@@ -178,12 +158,8 @@ describe('Routes', () => {
         // Everything else does not matter
         cid: 'bafytest',
         zinniaVersion: '2.3.4',
-        startAt: new Date(),
         statusCode: 200,
-        firstByteAt: new Date(),
-        endAt: new Date(),
-        byteLength: 100,
-        attestation: 'json.sig'
+        endAt: new Date()
       }
 
       const createRequest = await fetch(`${voyager}/measurements`, {
@@ -211,9 +187,7 @@ describe('Routes', () => {
         cid: 'bafytest',
         zinniaVersion: '2.3.4',
         participantAddress,
-        startAt: new Date(),
         statusCode: undefined,
-        firstByteAt: null,
         endAt: null
       }
 
@@ -234,7 +208,6 @@ describe('Routes', () => {
       ])
 
       assert.strictEqual(measurementRow.status_code, null)
-      assert.strictEqual(measurementRow.first_byte_at, null)
       assert.strictEqual(measurementRow.end_at, null)
     })
   })
@@ -245,12 +218,8 @@ describe('Routes', () => {
         cid: 'bafytest',
         zinniaVersion: '2.3.4',
         participantAddress,
-        startAt: new Date(),
         statusCode: 200,
-        firstByteAt: new Date(),
-        endAt: new Date(),
-        byteLength: 100,
-        attestation: 'json.sig'
+        endAt: new Date()
       }
 
       const createRequest = await fetch(`${voyager}/measurements`, {
@@ -267,13 +236,8 @@ describe('Routes', () => {
       assert.strictEqual(body.id, measurementId)
       assert.strictEqual(body.cid, retrieval.cid)
       assert.strictEqual(body.zinniaVersion, '2.3.4')
-      assert(body.finishedAt)
-      assert.strictEqual(body.startAt, retrieval.startAt.toJSON())
       assert.strictEqual(body.statusCode, retrieval.statusCode)
-      assert.strictEqual(body.firstByteAt, retrieval.firstByteAt.toJSON())
       assert.strictEqual(body.endAt, retrieval.endAt.toJSON())
-      assert.strictEqual(body.byteLength, retrieval.byteLength)
-      assert.strictEqual(body.attestation, retrieval.attestation)
       assert.strictEqual(body.carTooLarge, false)
     })
   })
@@ -423,8 +387,7 @@ describe('Routes', () => {
         method: 'POST',
         body: JSON.stringify({
           cid: 'cid',
-          participantAddress: 'address',
-          startAt: new Date()
+          participantAddress: 'address'
         })
       })
       await assertResponseStatus(res, 200)

@@ -15,17 +15,11 @@ export const publish = async ({
       id,
       zinnia_version,
       participant_address,
-      finished_at,
       timeout,
-      start_at,
       status_code,
-      first_byte_at,
       end_at,
-      byte_length,
-      attestation,
       inet_group,
       car_too_large,
-      car_checksum,
       cid
     FROM measurements
     LIMIT $1
