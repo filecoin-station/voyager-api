@@ -238,7 +238,7 @@ const insertMeasurement = async (client, measurement) => {
     completed_at_round
   )
   VALUES (
-    $1, $2, $3, $4, $5, $6, $7, $8, $9, $10
+    $1, $2, $3, $4, $5, $6, $7, $8, $9
   )
 `, [
     measurement.zinniaVersion,
