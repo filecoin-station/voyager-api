@@ -1,4 +1,4 @@
-# fly.toml app configuration file generated for voyager-api on 2024-03-05T14:58:12+01:00
+# fly.toml app configuration file generated for voyager-api on 2024-03-26T11:52:01+01:00
 #
 # See https://fly.io/docs/reference/configuration/ for information about how to use this file.
 #
@@ -28,7 +28,7 @@ kill_timeout = '5s'
 
 [[services]]
   protocol = 'tcp'
-  internal_port = 8080
+  internal_port = 3000
   processes = ['app']
 
 [[services.ports]]
