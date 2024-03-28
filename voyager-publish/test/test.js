@@ -111,7 +111,6 @@ describe('integration', () => {
       zinniaVersion: '0.5.6',
       cid: 'bafytest',
       participantAddress: 't1foobar',
-      timeout: false,
       statusCode: 200,
       endAt: null,
       inetGroup: 'MTIzNDU2Nzg',
@@ -121,7 +120,6 @@ describe('integration', () => {
       zinniaVersion: '0.5.6',
       cid: 'bafytest',
       participantAddress: 't1foobar',
-      timeout: false,
       statusCode: 200,
       endAt: null,
       inetGroup: 'MTIzNDU2Nzg',
@@ -230,7 +228,6 @@ const insertMeasurement = async (client, measurement) => {
     zinnia_version,
     cid,
     participant_address,
-    timeout,
     status_code,
     end_at,
     inet_group,
@@ -238,13 +235,12 @@ const insertMeasurement = async (client, measurement) => {
     completed_at_round
   )
   VALUES (
-    $1, $2, $3, $4, $5, $6, $7, $8, $9
+    $1, $2, $3, $4, $5, $6, $7, $8
   )
 `, [
     measurement.zinniaVersion,
     measurement.cid,
     measurement.participantAddress,
-    measurement.timeout,
     measurement.statusCode,
     measurement.endAt,
     measurement.inetGroup,

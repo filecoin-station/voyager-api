@@ -47,7 +47,6 @@ const createMeasurement = async (req, res, client, getCurrentRound) => {
 
   validate(measurement, 'cid', { type: 'string', required: true })
   validate(measurement, 'participantAddress', { type: 'string', required: true })
-  validate(measurement, 'timeout', { type: 'boolean', required: false })
   validate(measurement, 'endAt', { type: 'date', required: false })
   validate(measurement, 'statusCode', { type: 'number', required: false })
   validate(measurement, 'carTooLarge', { type: 'boolean', required: false })
@@ -59,7 +58,6 @@ const createMeasurement = async (req, res, client, getCurrentRound) => {
         zinnia_version,
         cid,
         participant_address,
-        timeout,
         status_code,
         end_at,
         inet_group,
@@ -67,14 +65,13 @@ const createMeasurement = async (req, res, client, getCurrentRound) => {
         completed_at_round
       )
       VALUES (
-        $1, $2, $3, $4, $5, $6, $7, $8, $9
+        $1, $2, $3, $4, $5, $6, $7, $8
       )
       RETURNING id
     `, [
     measurement.zinniaVersion,
     measurement.cid,
     measurement.participantAddress,
-    measurement.timeout || false,
     measurement.statusCode,
     parseOptionalDate(measurement.endAt),
     inetGroup,
@@ -99,7 +96,6 @@ const getMeasurement = async (req, res, client, measurementId) => {
     cid: resultRow.cid,
     zinniaVersion: resultRow.zinnia_version,
     createdAt: resultRow.created_at,
-    timeout: resultRow.timeout,
     statusCode: resultRow.status_code,
     endAt: resultRow.end_at,
     carTooLarge: resultRow.car_too_large

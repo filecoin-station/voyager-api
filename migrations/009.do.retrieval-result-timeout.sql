@@ -1,1 +1,0 @@
-ALTER TABLE retrieval_results ADD COLUMN timeout BOOLEAN NOT NULL DEFAULT FALSE;

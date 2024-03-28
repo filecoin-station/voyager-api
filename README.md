@@ -35,7 +35,7 @@ Body:
 ```typescript
 {
   participantAddress: String,
-  timeout: Boolean,
+  carTooLarge: Boolean,
   statusCode: Number,
   endAt: String          // ISO 8601
 }
