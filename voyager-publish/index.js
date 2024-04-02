@@ -1,6 +1,7 @@
 /* global File */
 
-import { record } from './lib/telemetry.js'
+// FIXME
+// import { record } from './lib/telemetry.js'
 
 export const publish = async ({
   client: pgPool,
@@ -36,25 +37,29 @@ export const publish = async ({
   logger.log(`Publishing ${measurements.length} measurements. Total unpublished: ${totalCount}. Batch size: ${maxMeasurements}.`)
 
   // Share measurements
-  let start = new Date()
+  // FIXME
+  // let start = new Date()
   const file = new File(
     [measurements.map(m => JSON.stringify(m)).join('\n')],
     'measurements.ndjson',
     { type: 'application/json' }
   )
   const cid = await web3Storage.uploadFile(file)
-  const uploadMeasurementsDuration = new Date() - start
+  // FIXME
+  // const uploadMeasurementsDuration = new Date() - start
   logger.log(`Measurements packaged in ${cid}`)
 
+  // FIXME
   // Call contract with CID
-  logger.log('ie.addMeasurements()...')
-  start = new Date()
-  const tx = await ieContract.addMeasurements(cid.toString())
-  const receipt = await tx.wait()
-  const log = ieContract.interface.parseLog(receipt.logs[0])
-  const roundIndex = log.args[1]
-  const ieAddMeasurementsDuration = new Date() - start
-  logger.log('Measurements added to round', roundIndex.toString())
+  // logger.log('ie.addMeasurements()...')
+  // start = new Date()
+  // FIXME: There currently are no funds in this wallet
+  // const tx = await ieContract.addMeasurements(cid.toString())
+  // const receipt = await tx.wait()
+  // const log = ieContract.interface.parseLog(receipt.logs[0])
+  // const roundIndex = log.args[1]
+  // const ieAddMeasurementsDuration = new Date() - start
+  // logger.log('Measurements added to round', roundIndex.toString())
 
   const pgClient = await pgPool.connect()
   try {
@@ -68,11 +73,13 @@ export const publish = async ({
       measurements.map(m => m.id)
     ])
 
-    // Record the commitment for future queries
-    // TODO: store also ieContract.address and roundIndex
-    await pgClient.query('INSERT INTO commitments (cid, published_at) VALUES ($1, $2)', [
-      cid.toString(), new Date()
-    ])
+    // FIXME: Since we're not publishing to the contract, also don't record any
+    // commitment
+    // // Record the commitment for future queries
+    // // TODO: store also ieContract.address and roundIndex
+    // await pgClient.query('INSERT INTO commitments (cid, published_at) VALUES ($1, $2)', [
+    //   cid.toString(), new Date()
+    // ])
 
     await pgClient.query('COMMIT')
   } catch (err) {
@@ -90,14 +97,16 @@ export const publish = async ({
 
   logger.log('Done!')
 
-  record('publish', point => {
-    point.intField('round_index', roundIndex)
-    point.intField('measurements', measurements.length)
-    point.floatField('load', totalCount / maxMeasurements)
-    point.intField(
-      'upload_measurements_duration_ms',
-      uploadMeasurementsDuration
-    )
-    point.intField('add_measurements_duration_ms', ieAddMeasurementsDuration)
-  })
+  // FIXME: Since we're not publishing to the contract, also don't record
+  // telemetry
+  // record('publish', point => {
+  //   point.intField('round_index', roundIndex)
+  //   point.intField('measurements', measurements.length)
+  //   point.floatField('load', totalCount / maxMeasurements)
+  //   point.intField(
+  //     'upload_measurements_duration_ms',
+  //     uploadMeasurementsDuration
+  //   )
+  //   point.intField('add_measurements_duration_ms', ieAddMeasurementsDuration)
+  // })
 }
