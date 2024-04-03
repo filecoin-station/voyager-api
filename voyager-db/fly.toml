@@ -48,3 +48,7 @@ primary_region = "cdg"
 [[services.ports]]
   handlers = ["pg_tls"]
   port = 5432
+
+[[vm]]
+  size = "shared-cpu-2x"
+  memory = "2gb"
