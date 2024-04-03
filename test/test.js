@@ -81,31 +81,6 @@ describe('Routes', () => {
       assert.strictEqual(await res.text(), 'Not Found')
     })
   })
-  describe('PATCH /retrievals/:id', () => {
-    // This API endpoint is used by old clients which always send walletAddress
-    const walletAddress = participantAddress
-
-    it('returns 410 OUTDATED CLIENT', async () => {
-      const result = {
-        walletAddress,
-        statusCode: 200,
-        endAt: new Date()
-      }
-
-      const updateRequest = await fetch(
-        `${voyager}/retrievals/1`,
-        {
-          method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(result)
-        }
-      )
-
-      await assertResponseStatus(updateRequest, 410)
-      const body = await updateRequest.text()
-      assert.strictEqual(body, 'OUTDATED CLIENT')
-    })
-  })
   describe('GET /retrievals/:id', () => {
     it('returns error', async () => {
       const res = await fetch(`${voyager}/retrievals/0`)
