@@ -10,13 +10,7 @@ const handler = async (req, res, client, getCurrentRound, domain) => {
     return redirect(res, `https://${domain}${req.url}`)
   }
   const segs = req.url.split('/').filter(Boolean)
-  if (segs[0] === 'retrievals' && req.method === 'POST') {
-    assert.fail(410, 'OUTDATED CLIENT')
-  } else if (segs[0] === 'retrievals' && req.method === 'PATCH') {
-    assert.fail(410, 'OUTDATED CLIENT')
-  } else if (segs[0] === 'retrievals' && req.method === 'GET') {
-    assert.fail(410, 'This API endpoint is no longer supported.')
-  } else if (segs[0] === 'measurements' && req.method === 'POST') {
+  if (segs[0] === 'measurements' && req.method === 'POST') {
     await createMeasurement(req, res, client, getCurrentRound)
   } else if (segs[0] === 'measurements' && req.method === 'GET') {
     await getMeasurement(req, res, client, Number(segs[1]))
@@ -36,14 +30,6 @@ const createMeasurement = async (req, res, client, getCurrentRound) => {
   const body = await getRawBody(req, { limit: '100kb' })
   const measurement = JSON.parse(body)
   validate(measurement, 'zinniaVersion', { type: 'string', required: false })
-
-  // Backwards-compatibility with older clients sending walletAddress instead of participantAddress
-  // We can remove this after enough Voyager clients are running the new version (mid-October 2023)
-  if (!('participantAddress' in measurement) && ('walletAddress' in measurement)) {
-    validate(measurement, 'walletAddress', { type: 'string', required: true })
-    measurement.participantAddress = measurement.walletAddress
-    delete measurement.walletAddress
-  }
 
   validate(measurement, 'cid', { type: 'string', required: true })
   validate(measurement, 'participantAddress', { type: 'string', required: true })

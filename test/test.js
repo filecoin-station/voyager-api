@@ -81,37 +81,6 @@ describe('Routes', () => {
       assert.strictEqual(await res.text(), 'Not Found')
     })
   })
-  describe('PATCH /retrievals/:id', () => {
-    // This API endpoint is used by old clients which always send walletAddress
-    const walletAddress = participantAddress
-
-    it('returns 410 OUTDATED CLIENT', async () => {
-      const result = {
-        walletAddress,
-        statusCode: 200,
-        endAt: new Date()
-      }
-
-      const updateRequest = await fetch(
-        `${voyager}/retrievals/1`,
-        {
-          method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(result)
-        }
-      )
-
-      await assertResponseStatus(updateRequest, 410)
-      const body = await updateRequest.text()
-      assert.strictEqual(body, 'OUTDATED CLIENT')
-    })
-  })
-  describe('GET /retrievals/:id', () => {
-    it('returns error', async () => {
-      const res = await fetch(`${voyager}/retrievals/0`)
-      await assertResponseStatus(res, 410 /* Gone */)
-    })
-  })
   describe('POST /measurements', () => {
     it('records a new measurement', async () => {
       await client.query('DELETE FROM measurements')
@@ -147,37 +116,6 @@ describe('Routes', () => {
       assert.strictEqual(measurementRow.completed_at_round, currentVoyagerRoundNumber.toString())
       assert.match(measurementRow.inet_group, /^.{12}$/)
       assert.strictEqual(measurementRow.car_too_large, true)
-    })
-
-    it('allows older format with walletAddress', async () => {
-      await client.query('DELETE FROM measurements')
-
-      const measurement = {
-        // THIS IS IMPORTANT
-        walletAddress: participantAddress,
-        // Everything else does not matter
-        cid: 'bafytest',
-        zinniaVersion: '2.3.4',
-        statusCode: 200,
-        endAt: new Date()
-      }
-
-      const createRequest = await fetch(`${voyager}/measurements`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(measurement)
-      })
-      await assertResponseStatus(createRequest, 200)
-      const { id } = await createRequest.json()
-
-      const { rows: [measurementRow] } = await client.query(`
-          SELECT *
-          FROM measurements
-          WHERE id = $1
-        `, [
-        id
-      ])
-      assert.strictEqual(measurementRow.participant_address, participantAddress)
     })
 
     it('handles date fields set to null', async () => {
