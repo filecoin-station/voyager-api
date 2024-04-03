@@ -10,9 +10,7 @@ const handler = async (req, res, client, getCurrentRound, domain) => {
     return redirect(res, `https://${domain}${req.url}`)
   }
   const segs = req.url.split('/').filter(Boolean)
-  if (segs[0] === 'retrievals' && req.method === 'GET') {
-    assert.fail(410, 'This API endpoint is no longer supported.')
-  } else if (segs[0] === 'measurements' && req.method === 'POST') {
+  if (segs[0] === 'measurements' && req.method === 'POST') {
     await createMeasurement(req, res, client, getCurrentRound)
   } else if (segs[0] === 'measurements' && req.method === 'GET') {
     await getMeasurement(req, res, client, Number(segs[1]))

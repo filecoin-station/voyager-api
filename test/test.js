@@ -81,12 +81,6 @@ describe('Routes', () => {
       assert.strictEqual(await res.text(), 'Not Found')
     })
   })
-  describe('GET /retrievals/:id', () => {
-    it('returns error', async () => {
-      const res = await fetch(`${voyager}/retrievals/0`)
-      await assertResponseStatus(res, 410 /* Gone */)
-    })
-  })
   describe('POST /measurements', () => {
     it('records a new measurement', async () => {
       await client.query('DELETE FROM measurements')
