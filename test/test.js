@@ -118,37 +118,6 @@ describe('Routes', () => {
       assert.strictEqual(measurementRow.car_too_large, true)
     })
 
-    it('allows older format with walletAddress', async () => {
-      await client.query('DELETE FROM measurements')
-
-      const measurement = {
-        // THIS IS IMPORTANT
-        walletAddress: participantAddress,
-        // Everything else does not matter
-        cid: 'bafytest',
-        zinniaVersion: '2.3.4',
-        statusCode: 200,
-        endAt: new Date()
-      }
-
-      const createRequest = await fetch(`${voyager}/measurements`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(measurement)
-      })
-      await assertResponseStatus(createRequest, 200)
-      const { id } = await createRequest.json()
-
-      const { rows: [measurementRow] } = await client.query(`
-          SELECT *
-          FROM measurements
-          WHERE id = $1
-        `, [
-        id
-      ])
-      assert.strictEqual(measurementRow.participant_address, participantAddress)
-    })
-
     it('handles date fields set to null', async () => {
       await client.query('DELETE FROM measurements')
 

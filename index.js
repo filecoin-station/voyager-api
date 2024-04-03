@@ -31,14 +31,6 @@ const createMeasurement = async (req, res, client, getCurrentRound) => {
   const measurement = JSON.parse(body)
   validate(measurement, 'zinniaVersion', { type: 'string', required: false })
 
-  // Backwards-compatibility with older clients sending walletAddress instead of participantAddress
-  // We can remove this after enough Voyager clients are running the new version (mid-October 2023)
-  if (!('participantAddress' in measurement) && ('walletAddress' in measurement)) {
-    validate(measurement, 'walletAddress', { type: 'string', required: true })
-    measurement.participantAddress = measurement.walletAddress
-    delete measurement.walletAddress
-  }
-
   validate(measurement, 'cid', { type: 'string', required: true })
   validate(measurement, 'participantAddress', { type: 'string', required: true })
   validate(measurement, 'endAt', { type: 'date', required: false })
