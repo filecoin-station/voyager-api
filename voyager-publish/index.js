@@ -1,7 +1,6 @@
 /* global File */
 
-// FIXME
-// import { record } from './lib/telemetry.js'
+import { record } from './lib/telemetry.js'
 
 export const publish = async ({
   client: pgPool,
@@ -37,16 +36,14 @@ export const publish = async ({
   logger.log(`Publishing ${measurements.length} measurements. Total unpublished: ${totalCount}. Batch size: ${maxMeasurements}.`)
 
   // Share measurements
-  // FIXME
-  // let start = new Date()
+  const start = new Date()
   const file = new File(
     [measurements.map(m => JSON.stringify(m)).join('\n')],
     'measurements.ndjson',
     { type: 'application/json' }
   )
   const cid = await web3Storage.uploadFile(file)
-  // FIXME
-  // const uploadMeasurementsDuration = new Date() - start
+  const uploadMeasurementsDuration = new Date() - start
   logger.log(`Measurements packaged in ${cid}`)
 
   // FIXME
@@ -97,16 +94,16 @@ export const publish = async ({
 
   logger.log('Done!')
 
-  // FIXME: Since we're not publishing to the contract, also don't record
-  // telemetry
-  // record('publish', point => {
-  //   point.intField('round_index', roundIndex)
-  //   point.intField('measurements', measurements.length)
-  //   point.floatField('load', totalCount / maxMeasurements)
-  //   point.intField(
-  //     'upload_measurements_duration_ms',
-  //     uploadMeasurementsDuration
-  //   )
-  //   point.intField('add_measurements_duration_ms', ieAddMeasurementsDuration)
-  // })
+  record('publish', point => {
+    // FIXME
+    // point.intField('round_index', roundIndex)
+    point.intField('measurements', measurements.length)
+    point.floatField('load', totalCount / maxMeasurements)
+    point.intField(
+      'upload_measurements_duration_ms',
+      uploadMeasurementsDuration
+    )
+    // FIXME
+    // point.intField('add_measurements_duration_ms', ieAddMeasurementsDuration)
+  })
 }
