@@ -50,5 +50,5 @@ primary_region = "cdg"
   port = 5432
 
 [[vm]]
-  size = "shared-cpu-2x"
+  size = "shared-cpu-4x"
   memory = "2gb"
