@@ -1,0 +1,1 @@
+ALTER TABLE measurements ADD COLUMN run_start TIMESTAMP WITH TIME ZONE;

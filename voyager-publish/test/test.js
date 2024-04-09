@@ -81,12 +81,17 @@ describe('unit', () => {
       logger
     })
 
-    assert.deepStrictEqual(clientQueryParams, [
-      [1],
-      undefined,
-      [[]],
-      undefined
-    ])
+    assert.strictEqual(clientQueryParams.length, 6)
+    assert.strictEqual(clientQueryParams[0], undefined)
+    assert(Array.isArray(clientQueryParams[1]))
+    assert.strictEqual(clientQueryParams[1][0], 1)
+    assert(clientQueryParams[1][1] instanceof Date)
+    assert.strictEqual(clientQueryParams[2], undefined)
+    assert.strictEqual(clientQueryParams[3], undefined)
+    assert(Array.isArray(clientQueryParams[4]))
+    assert(clientQueryParams[4][0] instanceof Date)
+    assert.strictEqual(clientQueryParams[5], undefined)
+
     assert.strictEqual(clientStatements.pop(), 'VACUUM measurements')
     assert.strictEqual(web3StorageUploadFiles.length, 1)
     // FIXME

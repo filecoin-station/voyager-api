@@ -9,28 +9,59 @@ export const publish = async ({
   maxMeasurements = 1000,
   logger = console
 }) => {
+  // Lock measurements for this run
+  // - On success, will be deleted
+  // - On failure, will be released after 5 minutes
+  // TODO: Ensure `runStart` is unique
+  const runStart = new Date()
+
   // Fetch measurements
-  const { rows: measurements } = await pgPool.query(`
-    SELECT
-      id,
-      zinnia_version,
-      participant_address,
-      status_code,
-      end_at,
-      inet_group,
-      car_too_large,
-      cid
-    FROM measurements
-    LIMIT $1
-  `, [
-    maxMeasurements
-  ])
+  let measurements
+  {
+    const pgClient = await pgPool.connect()
+    try {
+      await pgClient.query('BEGIN ISOLATION LEVEL SERIALIZABLE')
+
+      // Delete published measurements
+      const { rows } = await pgClient.query(`
+        WITH rows AS (
+          SELECT id
+          FROM measurements
+          ORDER BY id
+          LIMIT $1
+        )
+        UPDATE measurements
+        SET run_start = $2
+        WHERE EXISTS (SELECT * FROM rows WHERE measurements.id = rows.id)
+        RETURNING
+          id,
+          zinnia_version,
+          participant_address,
+          status_code,
+          end_at,
+          inet_group,
+          car_too_large,
+          cid
+      `, [
+        maxMeasurements,
+        runStart
+      ])
+      measurements = rows
+
+      await pgClient.query('COMMIT')
+    } catch (err) {
+      await pgClient.query('ROLLBACK')
+      throw err
+    } finally {
+      pgClient.release()
+    }
+  }
 
   // Fetch the count of all unpublished measurements - we need this for monitoring
   // Note: this number will be higher than `measurements.length` because voyager-api adds more
   // measurements in between the previous and the next query.
   const totalCount = (await pgPool.query(
-    'SELECT COUNT(*) FROM measurements'
+    'SELECT COUNT(*) FROM measurements WHERE run_start IS NULL'
   )).rows[0].count
 
   logger.log(`Publishing ${measurements.length} measurements. Total unpublished: ${totalCount}. Batch size: ${maxMeasurements}.`)
@@ -58,32 +89,34 @@ export const publish = async ({
   // const ieAddMeasurementsDuration = new Date() - start
   // logger.log('Measurements added to round', roundIndex.toString())
 
-  const pgClient = await pgPool.connect()
-  try {
-    await pgClient.query('BEGIN')
+  {
+    const pgClient = await pgPool.connect()
+    try {
+      await pgClient.query('BEGIN')
 
-    // Delete published measurements
-    await pgClient.query(`
-      DELETE FROM measurements
-      WHERE id = ANY($1::bigint[])
-    `, [
-      measurements.map(m => m.id)
-    ])
+      // Delete published measurements
+      await pgClient.query(`
+        DELETE FROM measurements
+        WHERE run_start = $1
+      `, [
+        runStart
+      ])
 
-    // FIXME: Since we're not publishing to the contract, also don't record any
-    // commitment
-    // // Record the commitment for future queries
-    // // TODO: store also ieContract.address and roundIndex
-    // await pgClient.query('INSERT INTO commitments (cid, published_at) VALUES ($1, $2)', [
-    //   cid.toString(), new Date()
-    // ])
+      // FIXME: Since we're not publishing to the contract, also don't record any
+      // commitment
+      // // Record the commitment for future queries
+      // // TODO: store also ieContract.address and roundIndex
+      // await pgClient.query('INSERT INTO commitments (cid, published_at) VALUES ($1, $2)', [
+      //   cid.toString(), new Date()
+      // ])
 
-    await pgClient.query('COMMIT')
-  } catch (err) {
-    await pgClient.query('ROLLBACK')
-    throw err
-  } finally {
-    pgClient.release()
+      await pgClient.query('COMMIT')
+    } catch (err) {
+      await pgClient.query('ROLLBACK')
+      throw err
+    } finally {
+      pgClient.release()
+    }
   }
 
   await pgPool.query('VACUUM measurements')
