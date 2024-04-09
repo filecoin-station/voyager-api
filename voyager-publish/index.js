@@ -12,7 +12,7 @@ export const publish = async ({
   // Lock measurements for this run
   // - On success, measurements will be deleted
   // - On failure, lock will be released after 5 minutes
-  // TODO: Ensure `runStart` is unique
+  // TODO: Ensure `publishStart` is unique
   const publishStart = new Date()
 
   // Fetch measurements
@@ -99,7 +99,7 @@ export const publish = async ({
         DELETE FROM measurements
         WHERE publish_start = $1
       `, [
-        runStart
+        publishStart
       ])
 
       // FIXME: Since we're not publishing to the contract, also don't record any
