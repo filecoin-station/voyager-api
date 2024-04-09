@@ -13,7 +13,7 @@ export const publish = async ({
   // - On success, measurements will be deleted
   // - On failure, lock will be released after 5 minutes
   // TODO: Ensure `runStart` is unique
-  const runStart = new Date()
+  const publishStart = new Date()
 
   // Fetch measurements
   let measurements
@@ -31,7 +31,7 @@ export const publish = async ({
           LIMIT $1
         )
         UPDATE measurements
-        SET run_start = $2
+        SET publish_start = $2
         WHERE EXISTS (SELECT * FROM rows WHERE measurements.id = rows.id)
         RETURNING
           id,
@@ -44,7 +44,7 @@ export const publish = async ({
           cid
       `, [
         maxMeasurements,
-        runStart
+        publishStart
       ])
       measurements = rows
 
@@ -61,7 +61,7 @@ export const publish = async ({
   // Note: this number will be higher than `measurements.length` because voyager-api adds more
   // measurements in between the previous and the next query.
   const totalCount = (await pgPool.query(
-    'SELECT COUNT(*) FROM measurements WHERE run_start IS NULL'
+    'SELECT COUNT(*) FROM measurements WHERE publish_start IS NULL'
   )).rows[0].count
 
   logger.log(`Publishing ${measurements.length} measurements. Total unpublished: ${totalCount}. Batch size: ${maxMeasurements}.`)
@@ -97,7 +97,7 @@ export const publish = async ({
       // Delete published measurements
       await pgClient.query(`
         DELETE FROM measurements
-        WHERE run_start = $1
+        WHERE publish_start = $1
       `, [
         runStart
       ])
