@@ -10,8 +10,8 @@ export const publish = async ({
   logger = console
 }) => {
   // Lock measurements for this run
-  // - On success, will be deleted
-  // - On failure, will be released after 5 minutes
+  // - On success, measurements will be deleted
+  // - On failure, lock will be released after 5 minutes
   // TODO: Ensure `runStart` is unique
   const runStart = new Date()
 
