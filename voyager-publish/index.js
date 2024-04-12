@@ -27,6 +27,7 @@ export const publish = async ({
         WITH rows AS (
           SELECT id
           FROM measurements
+          WHERE publish_start IS NULL OR publish_start < NOW() - INTERVAL '5 minutes'
           ORDER BY id
           LIMIT $1
         )
