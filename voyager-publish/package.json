@@ -1,6 +1,7 @@
 {
   "type": "module",
   "scripts": {
+    "migrate": "node ../bin/migrate.js",
     "start": "node bin/voyager-publish.js",
     "test": "standard && mocha"
   },
