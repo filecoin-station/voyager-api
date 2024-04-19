@@ -62,7 +62,7 @@ export const publish = async ({
   // Note: this number will be higher than `measurements.length` because voyager-api adds more
   // measurements in between the previous and the next query.
   const totalCount = (await pgPool.query(
-    'SELECT COUNT(*) FROM measurements WHERE publish_start IS NULL'
+    'SELECT COUNT(*) FROM measurements'
   )).rows[0].count
 
   logger.log(`Publishing ${measurements.length} measurements. Total unpublished: ${totalCount}. Batch size: ${maxMeasurements}.`)
