@@ -44,12 +44,7 @@ console.log(
 let rpcUrlIndex = 0
 
 const client = new pg.Pool({ connectionString: DATABASE_URL })
-
-await client.query(
-  `UPDATE measurements SET lock = NULL WHERE lock IS NOT NULL`,
-  [ps.pid]
-)
-
+await client.query('UPDATE measurements SET lock = NULL WHERE lock IS NOT NULL')
 await Promise.all(new Array(CONCURRENCY).fill().map(() => async () => {
   while (true) {
     const lastStart = new Date()
@@ -80,7 +75,7 @@ await Promise.all(new Array(CONCURRENCY).fill().map(() => async () => {
       rpcUrlIndex++
     }
     await client.query(
-      `UPDATE measurements SET lock = NULL WHERE lock = $1`,
+      'UPDATE measurements SET lock = NULL WHERE lock = $1',
       [ps.pid]
     )
     const dt = new Date() - lastStart
