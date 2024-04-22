@@ -9,12 +9,6 @@ export const publish = async ({
   maxMeasurements = 1000,
   logger = console
 }) => {
-  // Lock measurements for this run
-  // - On success, measurements will be deleted
-  // - On failure, lock will be released after 5 minutes
-  // TODO: Ensure `publishStart` is unique
-  const publishStart = new Date()
-
   // Fetch measurements
   let measurements
   {
@@ -27,12 +21,12 @@ export const publish = async ({
         WITH rows AS (
           SELECT id
           FROM measurements
-          WHERE publish_start IS NULL OR publish_start < NOW() - INTERVAL '5 minutes'
+          WHERE lock IS NULL
           ORDER BY id
           LIMIT $1
         )
         UPDATE measurements
-        SET publish_start = $2
+        SET lock = $2
         WHERE EXISTS (SELECT * FROM rows WHERE measurements.id = rows.id)
         RETURNING
           id,
@@ -45,7 +39,7 @@ export const publish = async ({
           cid
       `, [
         maxMeasurements,
-        publishStart
+        process.pid
       ])
       measurements = rows
 
@@ -98,9 +92,9 @@ export const publish = async ({
       // Delete published measurements
       await pgClient.query(`
         DELETE FROM measurements
-        WHERE publish_start = $1
+        WHERE lock = $1
       `, [
-        publishStart
+        process.pid
       ])
 
       // FIXME: Since we're not publishing to the contract, also don't record any

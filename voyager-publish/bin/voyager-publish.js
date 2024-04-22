@@ -7,6 +7,7 @@ import { spawn } from 'node:child_process'
 import { once } from 'events'
 import { fileURLToPath } from 'node:url'
 import { rpcUrls } from '../ie-contract-config.js'
+import pg from 'pg'
 
 const {
   SENTRY_ENVIRONMENT = 'development',
@@ -16,7 +17,8 @@ const {
   // See https://web3.storage/docs/how-to/upload/#bring-your-own-agent
   W3UP_PRIVATE_KEY,
   W3UP_PROOF,
-  CONCURRENCY = 2
+  CONCURRENCY = 2,
+  DATABASE_URL
 } = process.env
 
 Sentry.init({
@@ -40,6 +42,13 @@ console.log(
 )
 
 let rpcUrlIndex = 0
+
+const client = new pg.Pool({ connectionString: DATABASE_URL })
+
+await client.query(
+  `UPDATE measurements SET lock = NULL WHERE lock IS NOT NULL`,
+  [ps.pid]
+)
 
 await Promise.all(new Array(CONCURRENCY).fill().map(() => async () => {
   while (true) {
@@ -70,6 +79,10 @@ await Promise.all(new Array(CONCURRENCY).fill().map(() => async () => {
       Sentry.captureMessage(`Bad exit code: ${code}`)
       rpcUrlIndex++
     }
+    await client.query(
+      `UPDATE measurements SET lock = NULL WHERE lock = $1`,
+      [ps.pid]
+    )
     const dt = new Date() - lastStart
     if (dt < minRoundLength) await timers.setTimeout(minRoundLength - dt)
   }

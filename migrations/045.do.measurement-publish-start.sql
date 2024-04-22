@@ -1,1 +1,0 @@
-ALTER TABLE measurements ADD COLUMN publish_start TIMESTAMP WITH TIME ZONE;

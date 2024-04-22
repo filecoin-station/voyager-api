@@ -1,0 +1,1 @@
+ALTER TABLE measurements ADD COLUMN lock NUMBER;
