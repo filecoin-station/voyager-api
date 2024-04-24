@@ -1,103 +1,16 @@
-import { publish } from '../index.js'
 import assert from 'node:assert'
-import { CID } from 'multiformats/cid'
 import pg from 'pg'
-import * as telemetry from '../lib/telemetry.js'
+import { publish } from '../index.js'
+import {
+  DATABASE_URL,
+  createTelemetryRecorderStub,
+  createWeb3StorageStub,
+  insertMeasurement,
+  logger
+} from './test-helpers.js'
 
 // FIXME
 // import { assertApproximately } from '../../test/test-helpers.js'
-
-const { DATABASE_URL } = process.env
-
-after(telemetry.close)
-
-describe('unit', () => {
-  it('publishes', async () => {
-    const cid = 'bafybeicmyzlxgqeg5lgjgnzducj37s7bxhxk6vywqtuym2vhqzxjtymqvm'
-
-    const clientStatements = []
-    const clientQueryParams = []
-    const client = {
-      connect () {
-        return client
-      },
-      release () {},
-      async query (statement, params) {
-        clientStatements.push(statement)
-        if (statement.includes('SELECT COUNT(*) FROM measurements')) {
-          return { rows: [{ count: 10 }] }
-        }
-        if (statement.includes('INSERT INTO commitments')) {
-          return { rows: [] }
-        }
-        if (statement.startsWith('VACUUM')) {
-          return { rows: [] }
-        }
-
-        clientQueryParams.push(params)
-        return { rows: [] }
-      }
-    }
-
-    const web3StorageUploadFiles = []
-    const web3Storage = {
-      async uploadFile (file) {
-        web3StorageUploadFiles.push(file)
-        return CID.parse(cid)
-      }
-    }
-
-    const ieContractMeasurementCIDs = []
-    const ieContract = {
-      async addMeasurements (_cid) {
-        ieContractMeasurementCIDs.push(_cid)
-        return {
-          async wait () {
-            return {
-              logs: []
-            }
-          }
-        }
-      },
-      interface: {
-        parseLog () {
-          return {
-            args: [
-              null,
-              1
-            ]
-          }
-        }
-      }
-    }
-
-    const logger = { log () {} }
-
-    await publish({
-      client,
-      web3Storage,
-      ieContract,
-      maxMeasurements: 1,
-      logger
-    })
-
-    assert.strictEqual(clientQueryParams.length, 6)
-    assert.strictEqual(clientQueryParams[0], undefined)
-    assert(Array.isArray(clientQueryParams[1]))
-    assert.strictEqual(clientQueryParams[1][0], 1)
-    assert(clientQueryParams[1][1] instanceof Date)
-    assert.strictEqual(clientQueryParams[2], undefined)
-    assert.strictEqual(clientQueryParams[3], undefined)
-    assert(Array.isArray(clientQueryParams[4]))
-    assert(clientQueryParams[4][0] instanceof Date)
-    assert.strictEqual(clientQueryParams[5], undefined)
-
-    assert.strictEqual(clientStatements.pop(), 'VACUUM measurements')
-    assert.strictEqual(web3StorageUploadFiles.length, 1)
-    // FIXME
-    // assert.deepStrictEqual(ieContractMeasurementCIDs, [cid])
-  })
-})
 
 describe('integration', () => {
   let client
@@ -138,17 +51,11 @@ describe('integration', () => {
       await insertMeasurement(client, measurement)
     }
 
-    const cid = 'bafybeicmyzlxgqeg5lgjgnzducj37s7bxhxk6vywqtuym2vhqzxjtymqvm'
-
     // We're not sure if we're going to stick with web3.storage, or switch to
     // helia or another tool. Therefore, we're going to use a mock here.
-    const web3StorageUploadFiles = []
-    const web3Storage = {
-      async uploadFile (file) {
-        web3StorageUploadFiles.push(file)
-        return CID.parse(cid)
-      }
-    }
+
+    const { web3Storage, uploadedFiles } = createWeb3StorageStub()
+    const { recordTelemetry } = createTelemetryRecorderStub()
 
     const nextMeasurement = {
       ...(measurements[0]),
@@ -183,28 +90,22 @@ describe('integration', () => {
       }
     }
 
-    const logger = {
-      log () {},
-      error (...args) {
-        console.error(...args)
-      }
-    }
-
     await publish({
       client,
       web3Storage,
       ieContract,
+      recordTelemetry,
       maxMeasurements: 2,
       logger
     })
 
     // TODO: Check data has been committed to the contract
 
-    assert.strictEqual(web3StorageUploadFiles.length, 1)
+    assert.strictEqual(uploadedFiles.length, 1)
     // FIXME
     // assert.deepStrictEqual(ieContractMeasurementCIDs, [cid])
 
-    const payload = (await web3StorageUploadFiles[0].text())
+    const payload = (await uploadedFiles[0].text())
       .split('\n')
       .filter(Boolean)
       .map(JSON.parse)
@@ -230,30 +131,3 @@ describe('integration', () => {
     // assert.deepStrictEqual(remainingMeasurements.map(r => r.cid), ['bafynew'])
   })
 })
-
-const insertMeasurement = async (client, measurement) => {
-  await client.query(`
-  INSERT INTO measurements (
-    zinnia_version,
-    cid,
-    participant_address,
-    status_code,
-    end_at,
-    inet_group,
-    car_too_large,
-    completed_at_round
-  )
-  VALUES (
-    $1, $2, $3, $4, $5, $6, $7, $8
-  )
-`, [
-    measurement.zinniaVersion,
-    measurement.cid,
-    measurement.participantAddress,
-    measurement.statusCode,
-    measurement.endAt,
-    measurement.inetGroup,
-    measurement.carTooLarge,
-    measurement.round
-  ])
-}
