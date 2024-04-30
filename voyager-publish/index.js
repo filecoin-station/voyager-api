@@ -1,12 +1,12 @@
 /* global File */
 
-import { record } from './lib/telemetry.js'
-
 export const publish = async ({
   client: pgPool,
   web3Storage,
   ieContract,
+  recordTelemetry,
   maxMeasurements = 1000,
+  pid = process.pid,
   logger = console
 }) => {
   // Fetch measurements
@@ -39,7 +39,7 @@ export const publish = async ({
           cid
       `, [
         maxMeasurements,
-        process.pid
+        pid
       ])
       measurements = rows
 
@@ -94,7 +94,7 @@ export const publish = async ({
         DELETE FROM measurements
         WHERE lock = $1
       `, [
-        process.pid
+        pid
       ])
 
       // FIXME: Since we're not publishing to the contract, also don't record any
@@ -122,7 +122,7 @@ export const publish = async ({
 
   logger.log('Done!')
 
-  record('publish', point => {
+  recordTelemetry('publish', point => {
     // FIXME
     // point.intField('round_index', roundIndex)
     point.intField('measurements', measurements.length)

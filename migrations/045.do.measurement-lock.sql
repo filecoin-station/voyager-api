@@ -1,1 +1,1 @@
-ALTER TABLE measurements ADD COLUMN lock NUMBER;
+ALTER TABLE measurements ADD COLUMN lock INTEGER;
