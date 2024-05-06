@@ -44,7 +44,9 @@ console.log(
 let rpcUrlIndex = 0
 
 const client = new pg.Pool({ connectionString: DATABASE_URL })
-await client.query('UPDATE measurements SET locked_by_pid = NULL')
+await client.query(
+  'UPDATE measurements SET locked_by_pid = NULL WHERE locked_by_pid IS NOT NULL'
+)
 await Promise.all(new Array(CONCURRENCY).fill().map(() => async () => {
   while (true) {
     const lastStart = new Date()
