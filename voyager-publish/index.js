@@ -1,15 +1,6 @@
 /* global File */
 
-export const publish = async ({
-  client: pgPool,
-  web3Storage,
-  ieContract,
-  recordTelemetry,
-  maxMeasurements = 1000,
-  pid = process.pid,
-  logger = console
-}) => {
-  // Fetch measurements
+const fetchMeasurements = async ({ pgPool, maxMeasurements, pid }) => {
   let measurements
   {
     const pgClient = await pgPool.connect()
@@ -51,6 +42,20 @@ export const publish = async ({
       pgClient.release()
     }
   }
+
+  return measurements
+}
+
+export const publish = async ({
+  client: pgPool,
+  web3Storage,
+  ieContract,
+  recordTelemetry,
+  maxMeasurements = 1000,
+  pid = process.pid,
+  logger = console
+}) => {
+  const measurements = await fetchMeasurements({ pgPool, maxMeasurements, pid })
 
   // Fetch the count of all unpublished measurements - we need this for monitoring
   // Note: this number will be higher than `measurements.length` because voyager-api adds more
