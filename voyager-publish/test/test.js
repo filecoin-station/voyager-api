@@ -24,9 +24,6 @@ describe('unit', () => {
       release () {},
       async query (statement, params) {
         clientStatements.push(statement)
-        if (statement.includes('SELECT COUNT(*) FROM measurements')) {
-          return { rows: [{ count: 10 }] }
-        }
         if (statement.includes('INSERT INTO commitments')) {
           return { rows: [] }
         }
