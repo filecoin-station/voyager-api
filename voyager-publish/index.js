@@ -30,7 +30,7 @@ export const publish = async ({
   // Note: this number will be higher than `measurements.length` because voyager-api adds more
   // measurements in between the previous and the next query.
   // Note: counting ALL rows can put too much load on the DB server when the table is very large.
-  // Let's stop after we count 10 million rows. That's enough to let us know that we are in a serious trouble.
+  // Let's stop after we count 10 million rows. That's enough to let us know that we are in a trouble.
   const totalCount = (await pgPool.query(
     'SELECT COUNT(*) FROM (SELECT 1 FROM measurements LIMIT 10000000) t;'
   )).rows[0].count
