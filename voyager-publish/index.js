@@ -16,7 +16,7 @@ export const publish = async ({
     try {
       await pgClient.query('BEGIN ISOLATION LEVEL SERIALIZABLE')
 
-      // Delete published measurements
+      // Select measurements for publishing and lock them
       const { rows } = await pgClient.query(`
         WITH rows AS (
           SELECT id
