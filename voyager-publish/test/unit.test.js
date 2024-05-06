@@ -107,9 +107,8 @@ describe('publisher (unit tests)', () => {
     const { ieContract } = createIEContractStub()
     const { recordTelemetry } = createTelemetryRecorderStub()
 
-    // FIXME: remove this serial loop and uncomment the parallel Promise.all version below
-    for (const pid of [1001, 1002]) {
-      await publish({
+    await Promise.all([1001, 1002].map((pid) =>
+      publish({
         client: pgPool,
         web3Storage,
         ieContract,
@@ -118,19 +117,7 @@ describe('publisher (unit tests)', () => {
         pid,
         logger
       })
-    }
-
-    // await Promise.all([1001, 1002].map((pid) =>
-    //   publish({
-    //     client: pgPool,
-    //     web3Storage,
-    //     ieContract,
-    //     recordTelemetry,
-    //     maxMeasurements: 2,
-    //     pid,
-    //     logger
-    //   })
-    // ))
+    ))
 
     assert.strictEqual(uploadedFiles.length, 2)
     const payload = (await Promise.all(uploadedFiles.map(f => f.text())))
