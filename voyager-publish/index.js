@@ -21,12 +21,12 @@ export const publish = async ({
         WITH rows AS (
           SELECT id
           FROM measurements
-          WHERE lock IS NULL
+          WHERE locked_by_pid IS NULL
           ORDER BY id
           LIMIT $1
         )
         UPDATE measurements
-        SET lock = $2
+        SET locked_by_pid = $2
         WHERE EXISTS (SELECT * FROM rows WHERE measurements.id = rows.id)
         RETURNING
           id,
@@ -92,7 +92,7 @@ export const publish = async ({
       // Delete published measurements
       await pgClient.query(`
         DELETE FROM measurements
-        WHERE lock = $1
+        WHERE locked_by_pid = $1
       `, [
         pid
       ])
