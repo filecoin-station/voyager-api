@@ -59,7 +59,7 @@ export const publish = async ({
 }) => {
   const measurements = await pRetry(
     () => fetchMeasurements({ pgPool, maxMeasurements, pid }),
-    { retries: 1 }
+    { retries: 2 }
   )
 
   // Fetch the count of all unpublished measurements - we need this for monitoring

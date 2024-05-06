@@ -94,7 +94,9 @@ describe('publisher (unit tests)', () => {
     )
   })
 
-  it('handles concurrent calls', async () => {
+  it('handles concurrent calls', async function () {
+    this.timeout(4_000)
+
     const measurements = [
       givenMeasurement({ cid: 'bafy1' }),
       givenMeasurement({ cid: 'bafy2' }),
@@ -107,7 +109,7 @@ describe('publisher (unit tests)', () => {
     const { ieContract } = createIEContractStub()
     const { recordTelemetry } = createTelemetryRecorderStub()
 
-    await Promise.all([1001, 1002].map((pid) =>
+    await Promise.all([1001, 1002, 1003].map((pid) =>
       publish({
         client: pgPool,
         web3Storage,
@@ -119,7 +121,7 @@ describe('publisher (unit tests)', () => {
       })
     ))
 
-    assert.strictEqual(uploadedFiles.length, 2)
+    assert.strictEqual(uploadedFiles.length, 3)
     const payload = (await Promise.all(uploadedFiles.map(f => f.text())))
       .join('\n')
       .split('\n')
