@@ -1,6 +1,7 @@
 {
   "type": "module",
   "scripts": {
+    "migrate": "node ../bin/migrate.js",
     "start": "node bin/voyager-publish.js",
     "test": "standard && mocha"
   },
@@ -14,6 +15,7 @@
     "@web3-storage/access": "^18.0.3",
     "@web3-storage/w3up-client": "^11.0.2",
     "ethers": "^6.10.0",
+    "p-retry": "^6.2.0",
     "pg": "^8.11.3"
   },
   "devDependencies": {
