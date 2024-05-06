@@ -1,5 +1,7 @@
 /* global File */
 
+import pRetry from 'p-retry'
+
 const fetchMeasurements = async ({ pgPool, maxMeasurements, pid }) => {
   let measurements
   {
@@ -55,7 +57,10 @@ export const publish = async ({
   pid = process.pid,
   logger = console
 }) => {
-  const measurements = await fetchMeasurements({ pgPool, maxMeasurements, pid })
+  const measurements = await pRetry(
+    () => fetchMeasurements({ pgPool, maxMeasurements, pid }),
+    { retries: 1 }
+  )
 
   // Fetch the count of all unpublished measurements - we need this for monitoring
   // Note: this number will be higher than `measurements.length` because voyager-api adds more
