@@ -57,7 +57,7 @@ export const publish = async ({
   pid = process.pid,
   logger = console
 }) => {
-  logger.log('Selecting measurements to publish')
+  logger.log(`Selecting and locking (pid=${pid}) measurements to publish`)
   const measurements = await pRetry(
     () => fetchMeasurements({ pgPool, maxMeasurements, pid }),
     { retries: 3 }
