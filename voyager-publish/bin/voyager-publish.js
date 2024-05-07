@@ -51,7 +51,18 @@ console.log('Skipping unlocking measurements')
 //   'UPDATE measurements SET locked_by_pid = NULL WHERE locked_by_pid IS NOT NULL'
 // )
 console.log('Unlocked measurements')
-await Promise.all(new Array(CONCURRENCY).fill().map(async () => {
+
+let delay = 0
+await Promise.all(new Array(CONCURRENCY).fill().map(async (_, ix) => {
+  // Spread the publishers evenly into the interval of 20 seconds, but don't wait more than 5s.
+  // (It usually takes 20-30 seconds to run one publish-batch iteration.)
+  const startupDelay = delay
+  delay += Math.max(20_000 / CONCURRENCY, 5_000)
+  if (startupDelay) {
+    console.log(`Delaying the start of worker #${ix} by ${startupDelay}ms.`)
+    await timers.setTimeout(startupDelay)
+  }
+
   while (true) {
     const lastStart = new Date()
     const ps = spawn(
