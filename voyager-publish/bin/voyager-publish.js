@@ -76,7 +76,7 @@ await Promise.all(new Array(CONCURRENCY).fill().map(async () => {
     ps.stderr.pipe(process.stderr)
     const [code] = await once(ps, 'exit')
     if (code !== 0) {
-      console.error(`Bad exit code: ${code}`)
+      console.error(`Bad exit code: ${code} (child pid: ${ps.pid}`)
       Sentry.captureMessage(`Bad exit code: ${code}`)
       rpcUrlIndex++
     }
