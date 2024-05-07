@@ -140,7 +140,7 @@ export const publish = async ({
   }
 
   if (totalCount > 1_000_000) {
-    console.log('Skipping `VACUUM measurements` - the table is too large')
+    logger.log('Skipping `VACUUM measurements` - the table is too large')
   } else {
     logger.log('Vacuuming measurements')
     await pgPool.query('VACUUM measurements')
