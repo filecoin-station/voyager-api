@@ -105,11 +105,21 @@ export const publish = async ({
       await pgClient.query('BEGIN')
 
       // Delete published measurements
+      // await pgClient.query(`
+      //   DELETE FROM measurements
+      //   WHERE locked_by_pid = $1
+      // `, [
+      //   pid
+      // ])
+
+      // The query above is taking too long to complete because we don't
+      // have the index on locked_by_pid yet. As a short-term workaround,
+      // let's delete specific rows by their primary key.
       await pgClient.query(`
         DELETE FROM measurements
-        WHERE locked_by_pid = $1
+        WHERE id = ANY($1::INT[])
       `, [
-        pid
+        measurements.map(m => m.id)
       ])
 
       // FIXME: Since we're not publishing to the contract, also don't record any
