@@ -51,7 +51,7 @@ console.log('Skipping unlocking measurements')
 //   'UPDATE measurements SET locked_by_pid = NULL WHERE locked_by_pid IS NOT NULL'
 // )
 console.log('Unlocked measurements')
-await Promise.all(new Array(CONCURRENCY).fill().map(() => async () => {
+await Promise.all(new Array(CONCURRENCY).fill().map(async () => {
   while (true) {
     const lastStart = new Date()
     const ps = spawn(
