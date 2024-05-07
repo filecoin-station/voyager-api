@@ -17,7 +17,7 @@ const {
   // See https://web3.storage/docs/how-to/upload/#bring-your-own-agent
   W3UP_PRIVATE_KEY,
   W3UP_PROOF,
-  CONCURRENCY = 2,
+  CONCURRENCY = 4,
   DATABASE_URL
 } = process.env
 
