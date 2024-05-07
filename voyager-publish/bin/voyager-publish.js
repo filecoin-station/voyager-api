@@ -17,7 +17,7 @@ const {
   // See https://web3.storage/docs/how-to/upload/#bring-your-own-agent
   W3UP_PRIVATE_KEY,
   W3UP_PROOF,
-  CONCURRENCY = 2,
+  CONCURRENCY = 4,
   DATABASE_URL
 } = process.env
 
@@ -79,12 +79,17 @@ await Promise.all(new Array(CONCURRENCY).fill().map(async () => {
       console.error(`Bad exit code: ${code} (child pid: ${ps.pid}`)
       Sentry.captureMessage(`Bad exit code: ${code}`)
       rpcUrlIndex++
+
+      // FIXME: move this outside of the `code !== 0` block after locked_by_pid index is available
+      console.log(`Unlocking measurements left locked by pid ${ps.pid}`)
+      await client.query(
+        'UPDATE measurements SET locked_by_pid = NULL WHERE locked_by_pid = $1',
+        [ps.pid]
+      )
     }
-    await client.query(
-      'UPDATE measurements SET locked_by_pid = NULL WHERE locked_by_pid = $1',
-      [ps.pid]
-    )
+
     const dt = new Date() - lastStart
+    console.log(`Done. This loop iteration took ${dt}ms.`)
     if (dt < minRoundLength) await timers.setTimeout(minRoundLength - dt)
   }
 }))

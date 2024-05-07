@@ -15,7 +15,7 @@ import {
   GLIF_TOKEN
 } from '../ie-contract-config.js'
 import assert from 'node:assert'
-import { writeClient } from '../lib/telemetry.js'
+import { writeClient, recordTelemetry } from '../lib/telemetry.js'
 
 const {
   DATABASE_URL,
@@ -73,6 +73,7 @@ try {
     client,
     web3Storage,
     ieContract,
+    recordTelemetry,
     maxMeasurements: MAX_MEASUREMENTS_PER_ROUND
   })
 } finally {

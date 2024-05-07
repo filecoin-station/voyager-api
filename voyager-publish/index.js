@@ -139,8 +139,12 @@ export const publish = async ({
     }
   }
 
-  logger.log('Vacuuming measurements')
-  await pgPool.query('VACUUM measurements')
+  if (totalCount > 1_000_000) {
+    logger.log('Skipping `VACUUM measurements` - the table is too large')
+  } else {
+    logger.log('Vacuuming measurements')
+    await pgPool.query('VACUUM measurements')
+  }
 
   // TODO: Add cleanup
   // We're not sure if we're going to stick with web3.storage, or switch to
