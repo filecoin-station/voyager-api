@@ -57,10 +57,12 @@ export const publish = async ({
   pid = process.pid,
   logger = console
 }) => {
+  logger.log('Selecting measurements to publish')
   const measurements = await pRetry(
     () => fetchMeasurements({ pgPool, maxMeasurements, pid }),
     { retries: 3 }
   )
+  logger.log(`Publishing ${measurements.length} measurements.`)
 
   // Fetch the count of all unpublished measurements - we need this for monitoring
   // Note: this number will be higher than `measurements.length` because voyager-api adds more
@@ -71,7 +73,7 @@ export const publish = async ({
     'SELECT COUNT(*) FROM (SELECT 1 FROM measurements LIMIT 10000000) t;'
   )).rows[0].count
 
-  logger.log(`Publishing ${measurements.length} measurements. Total unpublished: ${totalCount}. Batch size: ${maxMeasurements}.`)
+  logger.log(`Total unpublished: ${totalCount}. Batch size: ${maxMeasurements}.`)
 
   // Share measurements
   const start = new Date()
