@@ -68,12 +68,27 @@ const ieContract = new ethers.Contract(
   provider
 ).connect(signer)
 
+const addPidToConsoleArgs = (...args) => {
+  if (typeof args[0] === 'string') {
+    args[0] = `[worker:%s] ${args[0]}`
+    args.splice(1, 0, process.pid)
+  } else {
+    args.unshift(`[worker:${process.pid}]`)
+  }
+  return args
+}
+const logger = {
+  log (...args) { console.log(...addPidToConsoleArgs(...args)) },
+  error (...args) { console.log(...addPidToConsoleArgs(...args)) }
+}
+
 try {
   await publish({
     client,
     web3Storage,
     ieContract,
     recordTelemetry,
+    logger,
     maxMeasurements: MAX_MEASUREMENTS_PER_ROUND
   })
 } finally {
