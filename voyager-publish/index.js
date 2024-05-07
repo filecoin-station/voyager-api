@@ -98,6 +98,7 @@ export const publish = async ({
   // const ieAddMeasurementsDuration = new Date() - start
   // logger.log('Measurements added to round', roundIndex.toString())
 
+  logger.log('Deleting measurements')
   {
     const pgClient = await pgPool.connect()
     try {
@@ -128,6 +129,7 @@ export const publish = async ({
     }
   }
 
+  logger.log('Vacuuming measurements')
   await pgPool.query('VACUUM measurements')
 
   // TODO: Add cleanup
