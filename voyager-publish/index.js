@@ -117,7 +117,7 @@ export const publish = async ({
       // let's delete specific rows by their primary key.
       await pgClient.query(`
         DELETE FROM measurements
-        WHERE id = ANY($1::INT[])
+        WHERE id = ANY($1::BIGINT[])
       `, [
         measurements.map(m => m.id)
       ])
