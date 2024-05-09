@@ -79,7 +79,7 @@ const addPidToConsoleArgs = (...args) => {
 }
 const logger = {
   log (...args) { console.log(...addPidToConsoleArgs(...args)) },
-  error (...args) { console.log(...addPidToConsoleArgs(...args)) }
+  error (...args) { console.error(...addPidToConsoleArgs(...args)) }
 }
 
 try {
