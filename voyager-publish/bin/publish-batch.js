@@ -24,7 +24,8 @@ const {
   MAX_MEASUREMENTS_PER_ROUND = 1000,
   // See https://web3.storage/docs/how-to/upload/#bring-your-own-agent
   W3UP_PRIVATE_KEY,
-  W3UP_PROOF
+  W3UP_PROOF,
+  LOCK
 } = process.env
 
 Sentry.init({
@@ -36,6 +37,7 @@ Sentry.init({
 assert(WALLET_SEED, 'WALLET_SEED required')
 assert(W3UP_PRIVATE_KEY, 'W3UP_PRIVATE_KEY required')
 assert(W3UP_PROOF, 'W3UP_PROOF required')
+assert(LOCK, 'LOCK required')
 
 const client = new pg.Pool({ connectionString: DATABASE_URL })
 
@@ -74,7 +76,8 @@ try {
     web3Storage,
     ieContract,
     recordTelemetry,
-    maxMeasurements: MAX_MEASUREMENTS_PER_ROUND
+    maxMeasurements: MAX_MEASUREMENTS_PER_ROUND,
+    lock: LOCK
   })
 } finally {
   // Ensure telemetry has been submitted before exiting

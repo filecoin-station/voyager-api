@@ -114,7 +114,7 @@ describe('publisher (unit tests)', () => {
         ieContract,
         recordTelemetry,
         maxMeasurements: 2,
-        pid: 1000 + i,
+        lock: String(1000 + i),
         logger
       })
     ))
