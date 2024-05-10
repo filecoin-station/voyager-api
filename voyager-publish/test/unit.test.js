@@ -10,6 +10,7 @@ import {
   insertMeasurement,
   logger
 } from './test-helpers.js'
+import { randomUUID } from 'node:crypto'
 
 // Tests in this file are using the real database and mocked web3.storage & smart-contract clients.
 // This allows us to run the tests locally  with no interaction with production services, and verify
@@ -114,7 +115,7 @@ describe('publisher (unit tests)', () => {
         ieContract,
         recordTelemetry,
         maxMeasurements: 2,
-        lock: String(1000 + i),
+        lock: randomUUID(),
         logger
       })
     ))
