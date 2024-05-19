@@ -1,6 +1,6 @@
 // Run `publish()` in a short lived script, to help with memory issues
 
-import Sentry from '@sentry/node'
+import * as Sentry from '@sentry/node'
 import { publish } from '../index.js'
 import pg from 'pg'
 import * as Client from '@web3-storage/w3up-client'
@@ -70,12 +70,27 @@ const ieContract = new ethers.Contract(
   provider
 ).connect(signer)
 
+const addPidToConsoleArgs = (...args) => {
+  if (typeof args[0] === 'string') {
+    args[0] = `[worker:%s] ${args[0]}`
+    args.splice(1, 0, process.pid)
+  } else {
+    args.unshift(`[worker:${process.pid}]`)
+  }
+  return args
+}
+const logger = {
+  log (...args) { console.log(...addPidToConsoleArgs(...args)) },
+  error (...args) { console.error(...addPidToConsoleArgs(...args)) }
+}
+
 try {
   await publish({
     client,
     web3Storage,
     ieContract,
     recordTelemetry,
+    logger,
     maxMeasurements: MAX_MEASUREMENTS_PER_ROUND,
     lock: LOCK
   })

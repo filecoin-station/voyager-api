@@ -1,4 +1,4 @@
-import Sentry from '@sentry/node'
+import * as Sentry from '@sentry/node'
 import assert from 'node:assert'
 import { newDelegatedEthAddress } from '@glif/filecoin-address'
 import timers from 'node:timers/promises'
