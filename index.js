@@ -3,7 +3,7 @@ import Sentry from '@sentry/node'
 import getRawBody from 'raw-body'
 import assert from 'http-assert'
 import { validate } from './lib/validate.js'
-// import { mapRequestToInetGroup } from './lib/inet-grouping.js'
+import { mapRequestToInetGroup } from './lib/inet-grouping.js'
 
 const handler = async (req, res, client, getCurrentRound, domain) => {
   if (req.headers.host.split(':')[0] !== domain) {
@@ -26,7 +26,7 @@ const handler = async (req, res, client, getCurrentRound, domain) => {
 }
 
 const createMeasurement = async (req, res, client, getCurrentRound) => {
-  // const { voyagerRoundNumber } = getCurrentRound()
+  const { voyagerRoundNumber } = getCurrentRound()
   const body = await getRawBody(req, { limit: '100kb' })
   const measurement = JSON.parse(body)
   validate(measurement, 'zinniaVersion', { type: 'string', required: false })
@@ -37,36 +37,34 @@ const createMeasurement = async (req, res, client, getCurrentRound) => {
   validate(measurement, 'statusCode', { type: 'number', required: false })
   validate(measurement, 'carTooLarge', { type: 'boolean', required: false })
 
-  // FIXME
-  // const inetGroup = await mapRequestToInetGroup(client, req)
+  const inetGroup = await mapRequestToInetGroup(client, req)
 
-  // const { rows } = await client.query(`
-  //     INSERT INTO measurements (
-  //       zinnia_version,
-  //       cid,
-  //       participant_address,
-  //       status_code,
-  //       end_at,
-  //       inet_group,
-  //       car_too_large,
-  //       completed_at_round
-  //     )
-  //     VALUES (
-  //       $1, $2, $3, $4, $5, $6, $7, $8
-  //     )
-  //     RETURNING id
-  //   `, [
-  //   measurement.zinniaVersion,
-  //   measurement.cid,
-  //   measurement.participantAddress,
-  //   measurement.statusCode,
-  //   parseOptionalDate(measurement.endAt),
-  //   inetGroup,
-  //   measurement.carTooLarge ?? false,
-  //   voyagerRoundNumber
-  // ])
-  // json(res, { id: rows[0].id })
-  json(res, { id: 0 })
+  const { rows } = await client.query(`
+      INSERT INTO measurements (
+        zinnia_version,
+        cid,
+        participant_address,
+        status_code,
+        end_at,
+        inet_group,
+        car_too_large,
+        completed_at_round
+      )
+      VALUES (
+        $1, $2, $3, $4, $5, $6, $7, $8
+      )
+      RETURNING id
+    `, [
+    measurement.zinniaVersion,
+    measurement.cid,
+    measurement.participantAddress,
+    measurement.statusCode,
+    parseOptionalDate(measurement.endAt),
+    inetGroup,
+    measurement.carTooLarge ?? false,
+    voyagerRoundNumber
+  ])
+  json(res, { id: rows[0].id })
 }
 
 const getMeasurement = async (req, res, client, measurementId) => {
@@ -228,17 +226,17 @@ export const createHandler = async ({
   }
 }
 
-// /**
-//  * Parse a date string field that may be `undefined` or `null`.
-//  *
-//  * - undefined -> undefined
-//  * - null -> undefined
-//  * - "iso-date-string" -> new Date("iso-date-string")
-//  *
-//  * @param {string | null | undefined} str
-//  * @returns {Date | undefined}
-//  */
-// const parseOptionalDate = (str) => {
-//   if (str === undefined || str === null) return undefined
-//   return new Date(str)
-// }
+/**
+ * Parse a date string field that may be `undefined` or `null`.
+ *
+ * - undefined -> undefined
+ * - null -> undefined
+ * - "iso-date-string" -> new Date("iso-date-string")
+ *
+ * @param {string | null | undefined} str
+ * @returns {Date | undefined}
+ */
+const parseOptionalDate = (str) => {
+  if (str === undefined || str === null) return undefined
+  return new Date(str)
+}
