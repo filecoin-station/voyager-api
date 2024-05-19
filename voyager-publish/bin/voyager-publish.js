@@ -8,6 +8,7 @@ import { once } from 'events'
 import { fileURLToPath } from 'node:url'
 import { rpcUrls } from '../ie-contract-config.js'
 import pg from 'pg'
+import { randomUUID } from 'node:crypto'
 
 const {
   SENTRY_ENVIRONMENT = 'development',
@@ -48,11 +49,12 @@ console.log('Unlocking previously locked measurements')
 // FIXME
 console.log('Skipping unlocking measurements')
 // await client.query(
-//   'UPDATE measurements SET locked_by_pid = NULL WHERE locked_by_pid IS NOT NULL'
+//   'UPDATE measurements SET lock = NULL WHERE lock IS NOT NULL'
 // )
 console.log('Unlocked measurements')
 await Promise.all(new Array(CONCURRENCY).fill().map(async () => {
   while (true) {
+    const lock = randomUUID()
     const lastStart = new Date()
     const ps = spawn(
       'node',
@@ -68,7 +70,8 @@ await Promise.all(new Array(CONCURRENCY).fill().map(async () => {
           WALLET_SEED,
           W3UP_PRIVATE_KEY,
           W3UP_PROOF,
-          RPC_URLS: rpcUrls[rpcUrlIndex % rpcUrls.length]
+          RPC_URLS: rpcUrls[rpcUrlIndex % rpcUrls.length],
+          LOCK: lock
         }
       }
     )
@@ -76,15 +79,15 @@ await Promise.all(new Array(CONCURRENCY).fill().map(async () => {
     ps.stderr.pipe(process.stderr)
     const [code] = await once(ps, 'exit')
     if (code !== 0) {
-      console.error(`Bad exit code: ${code} (child pid: ${ps.pid}`)
+      console.error(`Bad exit code: ${code} (lock: ${lock}`)
       Sentry.captureMessage(`Bad exit code: ${code}`)
       rpcUrlIndex++
 
-      // FIXME: move this outside of the `code !== 0` block after locked_by_pid index is available
-      console.log(`Unlocking measurements left locked by pid ${ps.pid}`)
+      // FIXME: move this outside of the `code !== 0` block after `lock` index is available
+      console.log(`Unlocking measurements left locked by ${lock}`)
       await client.query(
-        'UPDATE measurements SET locked_by_pid = NULL WHERE locked_by_pid = $1',
-        [ps.pid]
+        'UPDATE measurements SET lock = NULL WHERE lock = $1',
+        [lock]
       )
     }
 

@@ -2,7 +2,7 @@
 
 import pRetry from 'p-retry'
 
-const fetchMeasurements = async ({ pgPool, maxMeasurements, pid }) => {
+const fetchMeasurements = async ({ pgPool, maxMeasurements, lock }) => {
   let measurements
   {
     const pgClient = await pgPool.connect()
@@ -14,12 +14,12 @@ const fetchMeasurements = async ({ pgPool, maxMeasurements, pid }) => {
         WITH rows AS (
           SELECT id
           FROM measurements
-          WHERE locked_by_pid IS NULL
+          WHERE lock IS NULL
           ORDER BY id
           LIMIT $1
         )
         UPDATE measurements
-        SET locked_by_pid = $2
+        SET lock = $2
         WHERE EXISTS (SELECT * FROM rows WHERE measurements.id = rows.id)
         RETURNING
           id,
@@ -32,7 +32,7 @@ const fetchMeasurements = async ({ pgPool, maxMeasurements, pid }) => {
           cid
       `, [
         maxMeasurements,
-        pid
+        lock
       ])
       measurements = rows
 
@@ -54,12 +54,12 @@ export const publish = async ({
   ieContract,
   recordTelemetry,
   maxMeasurements = 1000,
-  pid = process.pid,
+  lock,
   logger = console
 }) => {
-  logger.log(`Selecting and locking (pid=${pid}) measurements to publish`)
+  logger.log(`Selecting and locking (lock=${lock}) measurements to publish`)
   const measurements = await pRetry(
-    () => fetchMeasurements({ pgPool, maxMeasurements, pid }),
+    () => fetchMeasurements({ pgPool, maxMeasurements, lock }),
     { retries: 3 }
   )
   logger.log(`Publishing ${measurements.length} measurements.`)
@@ -107,13 +107,13 @@ export const publish = async ({
       // Delete published measurements
       // await pgClient.query(`
       //   DELETE FROM measurements
-      //   WHERE locked_by_pid = $1
+      //   WHERE lock = $1
       // `, [
-      //   pid
+      //   lock
       // ])
 
       // The query above is taking too long to complete because we don't
-      // have the index on locked_by_pid yet. As a short-term workaround,
+      // have the index on `lock` yet. As a short-term workaround,
       // let's delete specific rows by their primary key.
       await pgClient.query(`
         DELETE FROM measurements
