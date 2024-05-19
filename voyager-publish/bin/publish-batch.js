@@ -1,6 +1,6 @@
 // Run `publish()` in a short lived script, to help with memory issues
 
-import Sentry from '@sentry/node'
+import * as Sentry from '@sentry/node'
 import { publish } from '../index.js'
 import pg from 'pg'
 import * as Client from '@web3-storage/w3up-client'
