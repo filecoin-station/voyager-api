@@ -46,11 +46,9 @@ let rpcUrlIndex = 0
 
 const client = new pg.Pool({ connectionString: DATABASE_URL })
 console.log('Unlocking previously locked measurements')
-// FIXME
-console.log('Skipping unlocking measurements')
-// await client.query(
-//   'UPDATE measurements SET lock = NULL WHERE lock IS NOT NULL'
-// )
+await client.query(
+  'UPDATE measurements SET lock = NULL WHERE lock IS NOT NULL'
+)
 console.log('Unlocked measurements')
 await Promise.all(new Array(CONCURRENCY).fill().map(async () => {
   while (true) {
